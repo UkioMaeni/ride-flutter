@@ -16,7 +16,7 @@ void main() {
     routes: {
       '/':(context)=> const Onboard(),
       "/reg":(context)=>const Registration(),
-      "/menu":(context) =>  MainApp(channel: channel,)
+      "/menu":(context) =>  MainApp(channel: channel,),
     },
   ) );
 }
