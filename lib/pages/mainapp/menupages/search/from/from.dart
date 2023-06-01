@@ -1,34 +1,100 @@
 import 'package:easy_debounce/easy_debounce.dart';
 import 'package:ezride/http/city/city_model.dart';
 import 'package:ezride/http/city/http_city.dart';
+import 'package:ezride/pages/mainapp/menupages/search/map/map_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 
-class SearchFrom extends StatefulWidget{
-  const SearchFrom({super.key});
+class ArgumentSetting{
+SvgPicture icon;
+String hint;
+TextEditingController controller;
+  ArgumentSetting( this.icon,this.hint,this.controller);
+}
 
+class MapPage{
+  String longitude;
+  String latitude;
+  String city;
+  MapPage(this.longitude,this.latitude,this.city);
+}
+
+
+
+
+class SearchFrom extends StatefulWidget{
+  Function update;
+   SearchFrom({required this.update, super.key});
+
+  void goToMap(BuildContext context,String longitude, String latitude,String city) {
+  MapPage params= MapPage(longitude,latitude,city);
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => MapSearch(update: update),
+      
+      settings: RouteSettings(arguments:params), 
+    ),
+  );
+}
   @override
   State<SearchFrom> createState() => _SearchFromState();
 }
 
 class _SearchFromState extends State<SearchFrom> {
 List<CityModel> cityList=[];
+final textFocus = FocusNode();
+  TextEditingController localController = TextEditingController();
+  bool focus=false;
 
-void _onTextChanged(String text) {
+@override
+  void initState() {
+    localController.text="";
+    textFocus.addListener(() {
+  if (textFocus.hasFocus) {
+    print("focused");
+    setState(() {
+      focus=true;
+    });
+  } else {
+    setState(() {
+      focus=false;
+    });
+  }
+
+  });
+    print(focus);
+    super.initState();
+  }
+@override
+  void dispose() {
+    localController.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    ArgumentSetting arguments = ModalRoute.of(context)!.settings.arguments as ArgumentSetting;
+  
+    void _onTextChanged(String text) {
+      print(arguments.controller.text.length);
     fn()async{
-     List<CityModel> newCity= await HttpCity().getCity(text);
-     setState(() {
+      if(text.length>0){
+        List<CityModel> newCity= await HttpCity().getCity(text);
+        setState(() {
        cityList=newCity;
-     });
+        });
+      }else{
+        setState(() {
+          cityList=[];
+        });
+      }
+     
+     
     } 
     EasyDebounce.debounce("one", const Duration(milliseconds: 300), ()=>fn());
     
 }
-  @override
-  Widget build(BuildContext context) {
-
-    final arguments = ModalRoute.of(context)!.settings.arguments as Map;
 
     return Scaffold(
                   backgroundColor: Colors.white,
@@ -86,13 +152,14 @@ void _onTextChanged(String text) {
                                   children: [
                                     Padding(
                                       padding: EdgeInsets.only(left:16,right: 9 ),
-                                      child: arguments["icon"],
+                                      child: arguments.icon,
                                       ),
                                     
                                     Expanded(
                                       child: TextField(
+                                        focusNode: textFocus,
                                         onChanged: _onTextChanged,
-                                        controller: arguments["controller"],
+                                        controller: arguments.controller,
                                         textCapitalization: TextCapitalization.sentences,
                                         keyboardType: TextInputType.text,
                                         style:const  TextStyle(
@@ -102,7 +169,7 @@ void _onTextChanged(String text) {
                                             
                                         ),
                                         decoration:  InputDecoration(
-                                          hintText: arguments["hint"],
+                                          hintText: arguments.hint,
                                           border:InputBorder.none,
                                           counterText: ""
                                         ),                   
@@ -111,21 +178,79 @@ void _onTextChanged(String text) {
                                   ],
                             ),
                           ),
-                          SingleChildScrollView(
+                          focus
+                          ?arguments.controller.text.isEmpty
+                          ?Container(
+                                        height: 44,
+                                        color: Colors.amber,
+                                        child:Row(
+                                          children: [
+                                            Padding(
+                                              padding: const EdgeInsets.only(left: 4,right: 10),
+                                              child: SvgPicture.asset(
+                                                "assets/svg/geo.svg"
+                                              ),
+                                            ),
+                                            Text("Use my geolocation"),
+                                          ],
+                                        )  
+                                      )
+                          :SingleChildScrollView(
                             child: Container(
-                              height: 120,
+                              height: 215,
                                   child: ListView.builder(
                                     itemCount: cityList.length,
                                     itemBuilder: (context, index) {
-                                      return Container(
-                                        height: 60,
-                                        child: Text(cityList[index].city),
+                                      return  InkWell(
+                                        onTap:() {
+                                          arguments.controller.clear();
+                                           widget.goToMap(context,cityList[index].longitude,cityList[index].latitude,cityList[index].city);
+                                        },
+                                        child: SizedBox(
+                                          height: 43,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Column(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  
+                                                  Text(
+                                                    cityList[index].city,
+                                                    style: TextStyle(
+                                                      fontFamily: "Inter",
+                                                      fontSize: 16,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Color.fromRGBO(51,51,51,1)
+                                                    ),
+                                                    ),
+                                                    Text(
+                                                    "USA, ${cityList[index].state}",
+                                                    style: TextStyle(
+                                                      fontFamily: "Inter",
+                                                      fontSize: 12,
+                                                      fontWeight: FontWeight.w500,
+                                                      color: Color.fromRGBO(119, 119, 119,1)
+                                                    ),
+                                                    ),
+                                                ],
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(right: 4),
+                                                child: SvgPicture.asset(
+                                                  "assets/svg/upToMap.svg"
+                                                ),
+                                              )
+                                            ],
+                                          )
+                                        ),
                                       );
                                     },
-                                  ),
+                                  )
                               
                             ),
-                          ),
+                          ):Container()
                           ],
                               ),
                         )

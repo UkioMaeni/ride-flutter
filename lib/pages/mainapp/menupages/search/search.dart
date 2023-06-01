@@ -1,14 +1,23 @@
-import 'package:ezride/pages/mainapp/menupages/search/UI/calendare.dart';
-import 'package:ezride/pages/mainapp/menupages/search/UI/text_input.dart';
+import 'package:ezride/pages/mainapp/menupages/search/UI/calendare/calendare.dart';
+import 'package:ezride/pages/mainapp/menupages/search/UI/card_coordinates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
-import 'UI/person_count.dart';
+import 'UI/person_count/person_count.dart';
+
+class DataCreate{
+  String city;
+  double longitude;
+  double latitude;
+  DataCreate(this.city,this.latitude,this.longitude);
+}
 
 class Search extends StatefulWidget{
   @override
   State<Search> createState() => _SearchState();
 }
+
+
 
 class _SearchState extends State<Search> {
 
@@ -17,6 +26,20 @@ class _SearchState extends State<Search> {
   TextEditingController fromTextController= TextEditingController();
   //to
   TextEditingController toTextController= TextEditingController();
+
+  DataCreate from =DataCreate("from",0,0);
+  DataCreate to =DataCreate("to",0,0);
+
+ void updateFrom(DataCreate data){
+    setState(() {
+      from=DataCreate(data.city, data.latitude, data.longitude);
+    });
+  }
+  void updateTo(DataCreate data){
+    setState(() {
+      to=DataCreate(data.city, data.latitude, data.longitude);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,16 +100,20 @@ class _SearchState extends State<Search> {
         padding: EdgeInsets.only(top: 32,left: 15,right: 15),
         child: Column(
           children: [
-           TextInput(
+           CardCoordinates(
             controller: fromTextController,
             icon: SvgPicture.asset(
                   "assets/svg/geoFrom.svg"
                   ),
-            hint: "From",
+            hint: "from",
+            name: from.city,
+            update:updateFrom,
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12),
-              child: TextInput(
+              child: CardCoordinates(
+                update: updateTo,
+                name: to.city,
               controller: toTextController,
               icon: SvgPicture.asset(
                     "assets/svg/geoTo.svg"
@@ -106,6 +133,33 @@ class _SearchState extends State<Search> {
                     child: PersonCount()
                     )
                 ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(top:12),
+              child: InkWell(
+                onTap: (){
+                  ///TODO 
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  width: double.infinity,
+                  height: 60,
+                  decoration: BoxDecoration(
+                    color:from.city!="from"&&to.city!="to"?Color.fromRGBO(64,123,255,1):Color.fromRGBO(177,177,177,0.5),
+                    borderRadius: BorderRadius.circular(10)
+                    
+                  ),
+                  child: Text(
+                    "Поиск",
+                    style: TextStyle(
+                      color: from.city!="from"&&to.city!="to"?Color.fromRGBO(255,255,255,1):Color.fromRGBO(255,255,255,0.5),
+                      fontFamily: "Inter",
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600
+                    ),
+                  ),
+                ),
               ),
             )
           ],

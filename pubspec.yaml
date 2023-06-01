@@ -43,6 +43,8 @@ dependencies:
   rflutter_alert: ^2.0.6
   web_socket_channel: ^2.4.0
   easy_debounce: ^2.0.3
+  google_maps_flutter: ^2.2.8
+  table_calendar: ^3.0.9
 
 dev_dependencies:
   flutter_test:
@@ -78,6 +80,11 @@ flutter:
     - assets/svg/calendare.svg
     - assets/svg/person.svg
     - assets/svg/back.svg
+    - assets/svg/geo.svg
+    - assets/svg/upToMap.svg
+    - assets/svg/marker.svg
+    - assets/svg/personMinus.svg
+    - assets/svg/personPlus.svg
   # To add assets to your application, add an assets section, like this:
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -126,6 +133,9 @@ flutter:
        - asset: assets/fonts/Poppins-SemiBold.ttf
          style: normal
          weight: 600
+       - asset: assets/fonts/Poppins-Bold.ttf
+         style: normal
+         weight: 700
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf

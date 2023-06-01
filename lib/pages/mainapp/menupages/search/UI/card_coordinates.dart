@@ -7,26 +7,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
-class TextInput extends StatefulWidget{
+class CardCoordinates extends StatefulWidget{
  final SvgPicture icon;
  final String hint;
   TextEditingController controller;
-  TextInput({required this.controller, required this.icon,required this.hint, super.key});
+  Function update;
+  String name;
+  CardCoordinates({required this.name, required this.update, required this.controller, required this.icon,required this.hint, super.key});
 
   @override
-  State<TextInput> createState() => _TextInputState();
+  State<CardCoordinates> createState() => _CardCoordinatesState();
 }
 
-class _TextInputState extends State<TextInput> {
+class _CardCoordinatesState extends State<CardCoordinates> {
 
 
 
 void _showAnimation(BuildContext context) {
+  ArgumentSetting params = ArgumentSetting(widget.icon,widget.hint,widget.controller);
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => SearchFrom(),
-      settings: RouteSettings(arguments:{ "icon":widget.icon,"hint":widget.hint,"controller":widget.controller}), 
+      builder: (context) => SearchFrom(update: widget.update,),
+      
+      settings: RouteSettings(arguments:params), 
     ),
   );
 }
@@ -55,7 +59,7 @@ void _showAnimation(BuildContext context) {
                     padding: const EdgeInsets.only(left: 16,right: 9),
                     child: widget.icon
                   ),
-                   Text("${widget.hint}")
+                   Text(widget.name.isNotEmpty?widget.name:widget.hint)
                 ],
               ),
              ),

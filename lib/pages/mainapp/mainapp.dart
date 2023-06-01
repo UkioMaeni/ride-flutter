@@ -1,4 +1,5 @@
 import 'package:ezride/http/user/http_user.dart';
+import 'package:ezride/pages/mainapp/menupages/create/create.dart';
 import 'package:ezride/pages/mainapp/menupages/message/messages.dart';
 import 'package:ezride/pages/mainapp/menupages/search/search.dart';
 import 'package:flutter/material.dart';
@@ -40,9 +41,7 @@ class _MainAppState extends State<MainApp> {
         body: TabBarView(
           children: [
            Search(),
-            Center(
-              child: Text("2"),
-            ),
+            Create(),
             Messages(),
             Center(
               child: Text("3"),

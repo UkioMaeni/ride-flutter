@@ -2,6 +2,7 @@
 import 'package:ezride/pages/mainapp/mainapp.dart';
 import 'package:ezride/pages/onboard/onboard.dart';
 import 'package:ezride/pages/registration/registration.dart';
+import 'package:ezride/pages/test_map.dart';
 import 'package:flutter/material.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -17,6 +18,7 @@ void main() {
       '/':(context)=> const Onboard(),
       "/reg":(context)=>const Registration(),
       "/menu":(context) =>  MainApp(channel: channel,),
+      "/map":(context) => MapSample()
     },
   ) );
 }

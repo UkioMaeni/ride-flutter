@@ -4,6 +4,8 @@
         android:label="ezride"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+        <meta-data android:name="com.google.android.geo.API_KEY"
+               android:value="AIzaSyCOvPfxcb0qXGu9cxYC_vcrC58bZihq-nc"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"
