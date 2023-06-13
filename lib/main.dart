@@ -1,5 +1,4 @@
 
-import 'package:ezride/app_localization/app_localizations.dart';
 import 'package:ezride/pages/mainapp/mainapp.dart';
 import 'package:ezride/pages/mainapp/menupages/create/provider/provider.dart';
 import 'package:ezride/pages/onboard/onboard.dart';
@@ -10,7 +9,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:web_socket_channel/io.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -46,11 +44,6 @@ print(fcmToken);
         navigatorObservers: [
       FirebaseAnalyticsObserver(analytics: analytics),
       ],
-      localizationsDelegates: [
-          AppLocalizations.delegate, // Делегат локализации для  приложения
-          GlobalMaterialLocalizations.delegate,
-          GlobalWidgetsLocalizations.delegate,
-        ],
       initialRoute: "/menu",
       routes: {
         '/':(context)=> const Onboard(),

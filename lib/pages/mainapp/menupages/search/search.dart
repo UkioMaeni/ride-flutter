@@ -1,4 +1,4 @@
-import 'package:ezride/app_localization/app_localizations.dart';
+
 import 'package:ezride/pages/mainapp/menupages/search/UI/calendare/calendare.dart';
 import 'package:ezride/pages/mainapp/menupages/search/UI/card_coordinates.dart';
 import 'package:ezride/pages/mainapp/menupages/search/result_search/result_search.dart';
@@ -96,7 +96,7 @@ class _SearchState extends State<Search> {
                     Padding(
                       padding: EdgeInsets.only(top: 8,left: 16),
                       child: Text(
-                        AppLocalizations.of(context).farewell,
+                        "",
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: "Poppins",
