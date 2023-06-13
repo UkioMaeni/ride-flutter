@@ -1,4 +1,5 @@
 import 'package:easy_debounce/easy_debounce.dart';
+import 'package:ezride/helpers/color_constants.dart';
 import 'package:ezride/helpers/debounce.dart';
 import 'package:ezride/http/city/city_model.dart';
 import 'package:ezride/http/city/http_city.dart';
@@ -50,7 +51,7 @@ void _showAnimation(BuildContext context) {
               height: 60,
               decoration: BoxDecoration(
                 //color: Color.fromRGBO(247,247,253,1),
-                color: Color.fromRGBO(65, 65, 156, 1),
+                color: categorySelected,
                 borderRadius: BorderRadius.circular(10)
               ),
               child: Row(

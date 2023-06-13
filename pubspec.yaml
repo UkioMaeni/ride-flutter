@@ -37,15 +37,18 @@ dependencies:
   cupertino_icons: ^1.0.2
   dio: ^5.1.2
   shared_preferences: ^2.1.1
-  intl: ^0.18.1
+  intl: ^0.17.0
   pin_code_fields: ^7.4.0
   flutter_svg: ^2.0.5
   rflutter_alert: ^2.0.6
   web_socket_channel: ^2.4.0
   easy_debounce: ^2.0.3
   google_maps_flutter: ^2.2.8
-  table_calendar: ^3.0.9
-
+  table_calendar: ^3.0.0
+  flutter_localizations:
+    sdk: flutter
+  provider: ^6.0.5
+  share: ^2.0.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -56,6 +59,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^2.0.0
+  
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -85,6 +89,8 @@ flutter:
     - assets/svg/marker.svg
     - assets/svg/personMinus.svg
     - assets/svg/personPlus.svg
+    - assets/svg/information.svg
+    - assets/svg/money.svg
   # To add assets to your application, add an assets section, like this:
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware
@@ -125,6 +131,9 @@ flutter:
        - asset: assets/fonts/SF-Pro-Display-Regular.otf
          style: normal
          weight: 400
+       - asset: assets/fonts/SF-Pro-Display-Bold.otf
+         style: normal
+         weight: 700
     - family: Poppins
       fonts:
        - asset: assets/fonts/Poppins-Regular.ttf

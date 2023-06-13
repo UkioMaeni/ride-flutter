@@ -1,6 +1,6 @@
 class CityModel{
-         int city_id;
-          int  state_id;
+           int city_id;
+           int  state_id;
            String city;
            String state;
            String county;

@@ -3,7 +3,10 @@ import 'dart:ffi';
 import 'package:dio/dio.dart';
 import 'package:ezride/http/city/city_model.dart';
 import 'package:ezride/http/instanse.dart';
+
 const baseUrl="http://31.184.254.86:9099/api/v1/city";
+
+
 class HttpCity{
 
   Future<List<CityModel>> getCity(String city) async{

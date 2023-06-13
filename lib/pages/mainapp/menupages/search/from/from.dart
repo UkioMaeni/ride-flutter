@@ -1,4 +1,5 @@
 import 'package:easy_debounce/easy_debounce.dart';
+import 'package:ezride/helpers/color_constants.dart';
 import 'package:ezride/http/city/city_model.dart';
 import 'package:ezride/http/city/http_city.dart';
 import 'package:ezride/pages/mainapp/menupages/search/map/map_search.dart';
@@ -28,14 +29,14 @@ class SearchFrom extends StatefulWidget{
    SearchFrom({required this.update, super.key});
 
   void goToMap(BuildContext context,String longitude, String latitude,String city) {
-  MapPage params= MapPage(longitude,latitude,city);
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => MapSearch(update: update),
-      
-      settings: RouteSettings(arguments:params), 
-    ),
+    MapPage params= MapPage(longitude,latitude,city);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => MapSearch(update: update),
+        
+        settings: RouteSettings(arguments:params), 
+      ),
   );
 }
   @override
@@ -43,11 +44,11 @@ class SearchFrom extends StatefulWidget{
 }
 
 class _SearchFromState extends State<SearchFrom> {
-List<CityModel> cityList=[];
-final textFocus = FocusNode();
+  List<CityModel> cityList=[];
+  final FocusNode textFocus = FocusNode();
   TextEditingController localController = TextEditingController();
   bool focus=false;
-
+  
 @override
   void initState() {
     localController.text="";
@@ -75,7 +76,7 @@ final textFocus = FocusNode();
   @override
   Widget build(BuildContext context) {
     ArgumentSetting arguments = ModalRoute.of(context)!.settings.arguments as ArgumentSetting;
-  
+    WidgetsBinding.instance.addPostFrameCallback((_) => textFocus.requestFocus());
     void _onTextChanged(String text) {
       print(arguments.controller.text.length);
     fn()async{
@@ -144,7 +145,7 @@ final textFocus = FocusNode();
                                   Container(
                                     alignment: Alignment.center,
                                     decoration: BoxDecoration(
-                                      color: Color.fromARGB(255, 162, 173, 182),
+                                      color: categorySelected,
                                       borderRadius: BorderRadius.circular(10)
                                     ),
                             height: 60,

@@ -1,3 +1,4 @@
+import 'package:ezride/helpers/color_constants.dart';
 import 'package:ezride/pages/mainapp/menupages/search/UI/person_count/modal_person_count.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -57,7 +58,7 @@ void _decrement(){
         child: Container(
            height: 60,
             decoration: BoxDecoration(
-              color:Color.fromRGBO(65, 65, 156, 1),
+              color:categorySelected,
               borderRadius: BorderRadius.circular(10),
           
           ),

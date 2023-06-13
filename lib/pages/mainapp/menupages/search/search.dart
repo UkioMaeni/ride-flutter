@@ -1,5 +1,7 @@
+import 'package:ezride/app_localization/app_localizations.dart';
 import 'package:ezride/pages/mainapp/menupages/search/UI/calendare/calendare.dart';
 import 'package:ezride/pages/mainapp/menupages/search/UI/card_coordinates.dart';
+import 'package:ezride/pages/mainapp/menupages/search/result_search/result_search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -29,6 +31,7 @@ class _SearchState extends State<Search> {
 
   DataCreate from =DataCreate("from",0,0);
   DataCreate to =DataCreate("to",0,0);
+  DateTime date=DateTime.now();
 
  void updateFrom(DataCreate data){
     setState(() {
@@ -40,7 +43,20 @@ class _SearchState extends State<Search> {
       to=DataCreate(data.city, data.latitude, data.longitude);
     });
   }
+  void updateDate(DateTime newdate){
+    setState(() {
+     date=newdate;
+    });
+  }
 
+  void _search(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_)=>ResultSearch(from: from, to: to, date: date)
+        )
+        );
+  }
   @override
   Widget build(BuildContext context) {
    return Column(
@@ -65,7 +81,7 @@ class _SearchState extends State<Search> {
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children:  [
                     Padding(
                       padding: EdgeInsets.only(top: 16,left: 16),
                       child: Text(
@@ -80,7 +96,7 @@ class _SearchState extends State<Search> {
                     Padding(
                       padding: EdgeInsets.only(top: 8,left: 16),
                       child: Text(
-                        "Moccked text",
+                        AppLocalizations.of(context).farewell,
                         style: TextStyle(
                           color: Colors.white,
                           fontFamily: "Poppins",
@@ -126,7 +142,7 @@ class _SearchState extends State<Search> {
                 children: [
                   Expanded(
                     flex: 47,
-                    child: Calendare()
+                    child: Calendare(date: date,updateDate: updateDate,)
                     ),
                   Expanded(
                     flex: 20,
@@ -139,7 +155,7 @@ class _SearchState extends State<Search> {
               padding: const EdgeInsets.only(top:12),
               child: InkWell(
                 onTap: (){
-                  ///TODO 
+                  _search();
                 },
                 child: Container(
                   alignment: Alignment.center,

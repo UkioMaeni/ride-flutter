@@ -22,17 +22,11 @@ class _MyAppState extends State<Onboard> {
       
     }
   }
-  @override
-  Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
-      statusBarColor: const Color.fromRGBO(0, 0, 0, 0)
-  )); 
-
-      List<Widget> images=[
+List<Widget> images=[
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Goes to meet people who just got\ntheir license",style: TextStyle(color: textColor,fontFamily: "Inter",fontSize: 18)),
+            Text("Goes to meet people who just got\ntheir license",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
             Padding(padding: EdgeInsets.only(top: 93),child: Image.asset("assets/image/onboard_1.png",fit: BoxFit.cover),
             ) 
           ],
@@ -41,27 +35,40 @@ class _MyAppState extends State<Onboard> {
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Our company is a leader by the\nnumber of cars in the fleet",style: TextStyle(color: textColor,fontFamily: "Inter",fontSize: 18)),
+            Text("Our company is a leader by the\nnumber of cars in the fleet",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
             Padding(padding: EdgeInsets.only(top: 104),child: Image.asset("assets/image/onboard_2.png",fit: BoxFit.cover),) 
           ],
           ),
           Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("We will pay for you, all expenses\nrelated to the car",style: TextStyle(color: textColor,fontFamily: "Inter",fontSize: 18)),
+            Text("We will pay for you, all expenses\nrelated to the car",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
             Padding(padding: EdgeInsets.only(top: 58),child: Image.asset("assets/image/onboard_3.png",fit: BoxFit.cover),) 
           ],
           ),
           Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Choose between regular car models\nor exclusive ones",style: TextStyle(color: textColor,fontFamily: "Inter",fontSize: 18)),
+            Text("Choose between regular car models\nor exclusive ones",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
             Padding(padding: EdgeInsets.only(top: 17),child: Image.asset("assets/image/onboard_4.png",fit: BoxFit.cover),) 
           ],
           )
   ];
 
+
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
+      statusBarColor: const Color.fromRGBO(0, 0, 0, 0)
+  )); 
+
+      
+
     double winHeight = MediaQuery.of(context).size.height;
+
+
+
     return   Scaffold(
         body: Stack(
           alignment: Alignment.bottomRight,
@@ -70,35 +77,38 @@ class _MyAppState extends State<Onboard> {
             SizedBox(
               height: winHeight,
               width: double.infinity,
-              child: PageView.builder(
+              child: NotificationListener<ScrollNotification>(
                 
-                controller: controller,
-                onPageChanged: (index){
-                  setState(() {
-                    currentIndex=index%(images.length);
-                  });
-                },
-                itemBuilder: (context,index){
-                  return Padding(
-                    padding: const EdgeInsets.only(top: 83,left: 15),
-                    child: SizedBox(
-                      height: winHeight,
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text("Your first car without \na driver's license",style: TextStyle(color: textColor,fontSize: 28,fontFamily: "Josefin",fontWeight: FontWeight.w500),),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 12),
-                            child: images[index%images.length],
-                          )
-                        ],
-                      ) ,
-                      
-                    ),
-                  );
-                }
-                ),
+                child: PageView.builder(
+                  itemCount: images.length,
+                  controller: controller,
+                  onPageChanged: (index){
+                    setState(() {
+                      currentIndex=index%(images.length);
+                    });
+                  },
+                  itemBuilder: (context,index){
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 83,left: 15),
+                      child: SizedBox(
+                        height: winHeight,
+                        width: MediaQuery.of(context).size.width,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Your first car without \na driver's license",style: TextStyle(color: textColor,fontSize: 28,fontFamily: "Josefin",fontWeight: FontWeight.w500),),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 12),
+                              child: images[index%images.length],
+                            )
+                          ],
+                        ) ,
+                        
+                      ),
+                    );
+                  }
+                  ),
+              ),
             ),
             
             // Row(mainAxisAlignment: MainAxisAlignment.center, children: [
@@ -121,6 +131,9 @@ class _MyAppState extends State<Onboard> {
                 child: FilledButton(
                   
                   onPressed: (){
+                    if(currentIndex==3){
+                      Navigator.popAndPushNamed(context, "/reg");
+                    }
                     if(currentIndex<3){
                         controller.jumpToPage(currentIndex+1);
                     }else{
@@ -159,9 +172,7 @@ class _MyAppState extends State<Onboard> {
               padding: const EdgeInsets.only(bottom: 53),
               child: TextButton(
                 onPressed: (){
-                  if(currentIndex!=0){
-                    controller.jumpToPage(currentIndex+2);
-                  }
+                  Navigator.popAndPushNamed(context, "/reg");
                 }, 
                 child: Text('Skip',style: TextStyle(
                   color: currentIndex==0?Color.fromRGBO(149,182,255, 1):Colors.white,

@@ -1,29 +1,28 @@
+import 'package:ezride/helpers/color_constants.dart';
 import 'package:ezride/pages/mainapp/menupages/search/UI/calendare/modal_calendare.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
 
 class Calendare extends StatefulWidget{
-  const Calendare({super.key});
+  DateTime date;
+  Function updateDate;
+  Calendare({required this.updateDate, required this.date, super.key});
   @override
   State<Calendare> createState() => _CalendareState();
 }
 
 class _CalendareState extends State<Calendare> {
 
-  DateTime date=DateTime.now();
-  updateDate(DateTime newDate){
-    setState(() {
-      date=newDate;
-    });
-  }
+  
+
   void _showDialogPage(BuildContext context){
     showModalBottomSheet(
       isScrollControlled: true,
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context){
-        return CalendarModal(update:updateDate);
+        return CalendarModal(update:widget.updateDate);
       },
       );
       
@@ -38,7 +37,7 @@ class _CalendareState extends State<Calendare> {
       child: Container(
         height: 60,
         decoration: BoxDecoration(
-          color:Color.fromRGBO(65, 65, 156, 1),
+          color:categorySelected,
           borderRadius: BorderRadius.circular(10)
         ),
         child: Row(
@@ -49,7 +48,7 @@ class _CalendareState extends State<Calendare> {
                       "assets/svg/calendare.svg"
                       ),
             ),
-            Text(date.day==DateTime.now().day?"Today":DateFormat("dd MMMM yyyy").format(date))
+            Text(date.day==DateTime.now().day?"Today":DateFormat("dd MMMM yyyy").format(widget.date))
           ],
         ),
       ),

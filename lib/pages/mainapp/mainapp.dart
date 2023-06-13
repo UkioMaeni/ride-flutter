@@ -1,6 +1,7 @@
 import 'package:ezride/http/user/http_user.dart';
 import 'package:ezride/pages/mainapp/menupages/create/create.dart';
 import 'package:ezride/pages/mainapp/menupages/message/messages.dart';
+import 'package:ezride/pages/mainapp/menupages/profile/profile.dart';
 import 'package:ezride/pages/mainapp/menupages/search/search.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -43,9 +44,7 @@ class _MainAppState extends State<MainApp> {
            Search(),
             Create(),
             Messages(),
-            Center(
-              child: Text("3"),
-            )
+            Profile()
           ],
         ),
         bottomNavigationBar: Container(
