@@ -4,6 +4,12 @@ import GoogleMaps
 import FirebaseCore
 // import FirebaseAnalytics
 
+class MyExtensionContext: NSExtensionContext {
+  override class func _allowedItemPayloadClasses() -> Set<AnyClass> {
+    return super._allowedItemPayloadClasses().union([NSExtensionItem.self])
+  }
+}
+
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
   override func application(

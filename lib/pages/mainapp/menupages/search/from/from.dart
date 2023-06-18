@@ -25,8 +25,7 @@ class SearchFrom extends StatefulWidget {
   Function update;
   SearchFrom({required this.update, super.key});
 
-  void goToMap(
-      BuildContext context, String longitude, String latitude, String city) {
+  void goToMap(BuildContext context, String longitude, String latitude, String city) {
     MapPage params = MapPage(longitude, latitude, city);
     Navigator.push(
       context,
