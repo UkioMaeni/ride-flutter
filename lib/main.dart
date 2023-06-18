@@ -17,7 +17,7 @@ final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   const AndroidInitializationSettings initializationSettingsAndroid =
@@ -27,7 +27,7 @@ void main() async {
   final InitializationSettings initializationSettings =
       InitializationSettings(android: initializationSettingsAndroid, iOS: ios);
   await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-  initFirebaseMessaging();
+  // initFirebaseMessaging();
   FirebaseAnalytics analytics = FirebaseAnalytics.instance;
   final fcmToken = await FirebaseMessaging.instance.getToken();
   print(fcmToken);

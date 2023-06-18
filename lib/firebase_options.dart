@@ -58,8 +58,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '320242355547',
     projectId: 'eazyride-e70a8',
     storageBucket: 'eazyride-e70a8.appspot.com',
-    iosClientId:
-        '320242355547-mcm1jpn2un0m14cdf2p7nla6m9ljlb3v.apps.googleusercontent.com',
+    iosClientId: '320242355547-mcm1jpn2un0m14cdf2p7nla6m9ljlb3v.apps.googleusercontent.com',
     iosBundleId: 'com.easyride.ezride',
   );
 }
