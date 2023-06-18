@@ -24,7 +24,10 @@ class DefaultFirebaseOptions {
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        throw UnsupportedError(
+          'DefaultFirebaseOptions have not been configured for android - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
+        );
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
@@ -49,21 +52,14 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBrlaXJ1TgI5N7YDmFbJdfkaNtSl6qNtWk',
-    appId: '1:320242355547:android:f33a2fb8537a45d2369e7e',
-    messagingSenderId: '320242355547',
-    projectId: 'eazyride-e70a8',
-    storageBucket: 'eazyride-e70a8.appspot.com',
-  );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCvJvFiHhd075yH4mmYDQF0hDuaAJU1GLI',
-    appId: '1:320242355547:ios:0047c63a443864fb369e7e',
+    appId: '1:320242355547:ios:48188b91df3aff5f369e7e',
     messagingSenderId: '320242355547',
     projectId: 'eazyride-e70a8',
     storageBucket: 'eazyride-e70a8.appspot.com',
-    iosClientId: '320242355547-psfsoekcov606an2hlgrc9adlvh90c04.apps.googleusercontent.com',
-    iosBundleId: 'com.example.ezride',
+    iosClientId:
+        '320242355547-mcm1jpn2un0m14cdf2p7nla6m9ljlb3v.apps.googleusercontent.com',
+    iosBundleId: 'com.easyride.ezride',
   );
 }

@@ -1,4 +1,3 @@
-
 import 'package:ezride/pages/mainapp/mainapp.dart';
 import 'package:ezride/pages/mainapp/menupages/create/provider/provider.dart';
 import 'package:ezride/pages/onboard/onboard.dart';
@@ -16,45 +15,46 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
     FlutterLocalNotificationsPlugin();
 final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
-void main() async{
-  
-WidgetsFlutterBinding.ensureInitialized();
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-// 
-// ...
-const AndroidInitializationSettings initializationSettingsAndroid =
-      AndroidInitializationSettings("flagusa"); // Замените на свою иконку приложения
 
+  const AndroidInitializationSettings initializationSettingsAndroid =
+      AndroidInitializationSettings(
+          "flagusa"); // Замените на свою иконку приложения
+  DarwinInitializationSettings ios = DarwinInitializationSettings();
   final InitializationSettings initializationSettings =
-      InitializationSettings(android: initializationSettingsAndroid);
-await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-initFirebaseMessaging();
-FirebaseAnalytics analytics = FirebaseAnalytics.instance;
-final fcmToken = await FirebaseMessaging.instance.getToken();
-print(fcmToken);
+      InitializationSettings(android: initializationSettingsAndroid, iOS: ios);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  initFirebaseMessaging();
+  FirebaseAnalytics analytics = FirebaseAnalytics.instance;
+  final fcmToken = await FirebaseMessaging.instance.getToken();
+  print(fcmToken);
 
- final channel = IOWebSocketChannel.connect('ws://31.184.254.86:9099/api/v1/room/join'); 
+  final channel =
+      IOWebSocketChannel.connect('ws://31.184.254.86:9099/api/v1/room/join');
   channel.stream.listen((message) {
     print(message);
   });
-  runApp( ChangeNotifierProvider(
-      create: (BuildContext context)=>CreateProvider(),
-      child: MaterialApp(
-        navigatorObservers: [
-      FirebaseAnalyticsObserver(analytics: analytics),
+  runApp(ChangeNotifierProvider(
+    create: (BuildContext context) => CreateProvider(),
+    child: MaterialApp(
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
       ],
       initialRoute: "/menu",
       routes: {
-        '/':(context)=> const Onboard(),
-        "/reg":(context)=>const Registration(),
-        "/menu":(context) =>  MainApp(channel: channel,),
-        "/map":(context) => MapSample()
+        '/': (context) => const Onboard(),
+        "/reg": (context) => const Registration(),
+        "/menu": (context) => MainApp(
+              channel: channel,
+            ),
+        "/map": (context) => MapSample()
       },
     ),
-  ) );
+  ));
 }
-
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Обработка полученного уведомления в фоновом режиме
@@ -80,7 +80,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   );
 }
 
-
 void showNotification(RemoteMessage message) async {
   var androidPlatformChannelSpecifics = AndroidNotificationDetails(
     '0',
@@ -93,19 +92,17 @@ void showNotification(RemoteMessage message) async {
 
   await flutterLocalNotificationsPlugin.show(
     0,
-    message.notification?.title??"",
-    message.notification?.body??"",
+    message.notification?.title ?? "",
+    message.notification?.body ?? "",
     platformChannelSpecifics,
     payload: "pay",
   );
 }
 
-
 void initFirebaseMessaging() {
-  var initializationSettingsAndroid =
-      AndroidInitializationSettings("flagusa");
-  var initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid);
+  var initializationSettingsAndroid = AndroidInitializationSettings("flagusa");
+  var initializationSettings =
+      InitializationSettings(android: initializationSettingsAndroid);
 
   flutterLocalNotificationsPlugin.initialize(initializationSettings);
 
