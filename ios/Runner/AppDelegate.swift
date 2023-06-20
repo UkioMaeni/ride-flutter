@@ -4,11 +4,11 @@ import GoogleMaps
 import FirebaseCore
 // import FirebaseAnalytics
 
-class MyExtensionContext: NSExtensionContext {
-  override class func _allowedItemPayloadClasses() -> Set<AnyClass> {
-    return super._allowedItemPayloadClasses().union([NSExtensionItem.self])
-  }
-}
+// class MyExtensionContext: NSExtensionContext {
+//   override class func _allowedItemPayloadClasses() -> Set<AnyClass> {
+//     return super._allowedItemPayloadClasses().union([NSExtensionItem.self])
+//   }
+// }
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -19,6 +19,12 @@ class MyExtensionContext: NSExtensionContext {
     FirebaseApp.configure()
     // FirebaseMessaging.instance.delegate = self
     GMSServices.provideAPIKey("AIzaSyDt-QTvmblraCyPdEE5LqKWM2OCVMMgx_w")
+
+  if CLLocationManager.locationServicesEnabled() {
+    let locationManager = CLLocationManager()
+    locationManager.requestWhenInUseAuthorization()
+  }
+    
     GeneratedPluginRegistrant.register(with: self)
   
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
