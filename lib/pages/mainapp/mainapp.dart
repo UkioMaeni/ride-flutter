@@ -7,17 +7,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-class MainApp extends StatefulWidget{
+import 'menupages/search/TestNavBar.dart';
+
+class MainApp extends StatefulWidget {
   WebSocketChannel channel;
   MainApp({required this.channel, super.key});
-  
+
   @override
   State<MainApp> createState() => _MainAppState();
 }
 
 class _MainAppState extends State<MainApp> {
-
-  getUserInfo()async{
+  getUserInfo() async {
     await HttpUser().getUser();
   }
 
@@ -26,48 +27,44 @@ class _MainAppState extends State<MainApp> {
     getUserInfo();
     super.initState();
   }
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
         appBar: AppBar(
-            systemOverlayStyle: SystemUiOverlayStyle.dark,
-            toolbarHeight: 0,
-            backgroundColor: Colors.white,
-            toolbarOpacity: 0,
-            elevation: 1,
-            
+          systemOverlayStyle: SystemUiOverlayStyle.dark,
+          toolbarHeight: 0,
+          backgroundColor: Colors.white,
+          toolbarOpacity: 0,
+          elevation: 1,
         ),
         body: TabBarView(
-          children: [
-           Search(),
-            Create(),
-            Messages(),
-            Profile()
-          ],
+          children: [Search(), TestNavBar(), Create(), Messages(), Profile()],
         ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
-            border: Border(
-              top: BorderSide(
-                color: Color.fromRGBO(87,87,88,0.2),
-                width: 1
-              )
-            )
-          ),
+              border: Border(
+                  top: BorderSide(
+                      color: Color.fromRGBO(87, 87, 88, 0.2), width: 1))),
           child: TabBar(
-            labelColor: Color.fromRGBO(58,121,215,1),
-            unselectedLabelColor: Color.fromRGBO(51,51,51,1),
+            labelColor: Color.fromRGBO(58, 121, 215, 1),
+            unselectedLabelColor: Color.fromRGBO(51, 51, 51, 1),
             indicator: BoxDecoration(),
-            labelStyle: TextStyle(
-              color: Color.fromRGBO(51,51,51,1)
-            ),
+            labelStyle: TextStyle(color: Color.fromRGBO(51, 51, 51, 1)),
             tabs: [
-                Tab(text: "Search",icon: Icon(Icons.search),),
-                Tab(text: "Create",icon: Icon(Icons.control_point)),
-                Tab(text: "Message",icon: Icon(Icons.forum_outlined)),
-                Tab(text: "Profile",icon: Icon(Icons.account_circle_outlined))
+              Tab(
+                text: "Search",
+                icon: Icon(Icons.search),
+              ),
+              Tab(
+                text: "TestNavBar",
+                icon: Icon(Icons.search),
+              ),
+              Tab(text: "Create", icon: Icon(Icons.control_point)),
+              Tab(text: "Message", icon: Icon(Icons.forum_outlined)),
+              Tab(text: "Profile", icon: Icon(Icons.account_circle_outlined))
             ],
           ),
         ),
