@@ -87,5 +87,9 @@
 	<false/>
 	<key>io.flutter.embedded_views_preview</key>
 	<true/>
+	<key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array>
+    	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
+	</array>
 </dict>
 </plist>
