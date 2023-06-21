@@ -18,7 +18,8 @@ import FirebaseCore
   ) -> Bool {
     FirebaseApp.configure()
     // FirebaseMessaging.instance.delegate = self
-    GMSServices.provideAPIKey("AIzaSyCvJvFiHhd075yH4mmYDQF0hDuaAJU1GLI")
+    GMSServices.setMetalRendererEnabled(true)
+    GMSServices.provideAPIKey("AIzaSyDQ2a3xgarJk8qlNGzNCLzrH3H_XmGSUaY")
 
   if CLLocationManager.locationServicesEnabled() {
     let locationManager = CLLocationManager()
