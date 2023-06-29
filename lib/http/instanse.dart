@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:ezride/asyncStorage/tokenStorage/token_storage.dart';
-import 'package:ezride/http/token/httpToken.dart';
+import 'package:flutter_application_1/http/token/httpToken.dart';
+import 'package:flutter_application_1/tokenStorage/token_storage.dart';
 
 class AuthInterceptor extends Interceptor {
   Dio dio;

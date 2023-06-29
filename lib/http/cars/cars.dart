@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:ezride/http/cars/car_model.dart';
-import 'package:ezride/http/instanse.dart';
+import 'package:flutter_application_1/http/cars/car_model.dart';
+import 'package:flutter_application_1/http/instanse.dart';
 
 class CarsHttp{
 

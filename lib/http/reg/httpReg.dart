@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:ezride/asyncStorage/tokenStorage/token_storage.dart';
 import 'package:flutter/material.dart';
 const baseUrl="http://31.184.254.86:9099/api/v1/sign-up";
 const baseUrlOtp="http://31.184.254.86:9099/api/v1/otp";
