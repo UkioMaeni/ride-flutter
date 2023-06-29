@@ -1,34 +1,8 @@
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.ezride">
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    <uses-permission android:name="android.permission.VIBRATE" />
-   <application
-        android:label="ezride"
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <application
+        android:label="flutter_application_1"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <meta-data android:name="com.google.android.geo.API_KEY"
-               android:value="AIzaSyCOvPfxcb0qXGu9cxYC_vcrC58bZihq-nc"/>
-    <service
-        android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingService"
-        android:exported="false">
-    <intent-filter>
-        <action android:name="com.google.firebase.MESSAGING_EVENT" />
-    </intent-filter>
-    </service>
-
-    <receiver
-        android:name="io.flutter.plugins.firebase.messaging.FlutterFirebaseMessagingReceiver"
-        android:exported="false"
-        tools:replace="android:exported">
-        <intent-filter>
-            <action android:name="com.google.firebase.MESSAGING_EVENT" />
-        </intent-filter>
-    </receiver>
-
-        
-        
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -55,8 +29,5 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-        <meta-data
-            android:name="com.google.firebase.messaging.default_notification_channel_id"
-            android:value="0" />
     </application>
 </manifest>

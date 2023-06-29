@@ -1,8 +1,8 @@
 import 'dart:ffi';
 
 import 'package:dio/dio.dart';
-import 'package:ezride/http/city/city_model.dart';
-import 'package:ezride/http/instanse.dart';
+import 'package:flutter_application_1/http/city/city_model.dart';
+import 'package:flutter_application_1/http/instanse.dart';
 
 const baseUrl="http://31.184.254.86:9099/api/v1/city";
 

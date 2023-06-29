@@ -1,5 +1,4 @@
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 class NumberFormatter extends TextInputFormatter {
   final int maxLength;
 
