@@ -9,7 +9,6 @@ class HttpUser{
 
   String access= await TokenStorage().getToken("access");
   if(access=="no") return -1;
-  print(access);
   Dio dio = Dio(
     BaseOptions(
       headers: {
@@ -29,8 +28,6 @@ class HttpUser{
       "nickname":nickname
     } 
     );
-
-    print(response);
     return 0;
   }catch(e){
       return -1;
@@ -52,9 +49,6 @@ class HttpUser{
 
   dio.interceptors.add(InterceptorsWrapper(
     onError: (error, handler){
-      int statusCode = error.response?.statusCode ?? -1;
-      print(statusCode);
-      print(error.response);
       handler.next(error);
     },
   ));
@@ -70,7 +64,6 @@ class HttpUser{
         }
       )
     );
-    print(response.data);
     return {};
   }catch(e){
     return {};

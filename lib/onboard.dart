@@ -1,7 +1,6 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/tokenStorage/token_storage.dart';
 
 
 
@@ -18,17 +17,15 @@ class _MyAppState extends State<Onboard> {
   final PageController controller= PageController();
  
   frameDispatcher()async{
-    String refresh =await TokenStorage().getToken("refresh");
-    if(refresh!=null){
-      
-    }
+    //TODO String refresh =await TokenStorage().getToken("refresh");
+    
   }
 List<Widget> images=[
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Goes to meet people who just got\ntheir license",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
-            Padding(padding: EdgeInsets.only(top: 93),child: Image.asset("assets/image/onboard_1.png",fit: BoxFit.cover),
+            const Text("Goes to meet people who just got\ntheir license",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
+            Padding(padding: const EdgeInsets.only(top: 93),child: Image.asset("assets/image/onboard_1.png",fit: BoxFit.cover),
             ) 
           ],
           )
@@ -36,27 +33,32 @@ List<Widget> images=[
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Our company is a leader by the\nnumber of cars in the fleet",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
-            Padding(padding: EdgeInsets.only(top: 104),child: Image.asset("assets/image/onboard_2.png",fit: BoxFit.cover),) 
+            const Text("Our company is a leader by the\nnumber of cars in the fleet",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
+            Padding(padding: const EdgeInsets.only(top: 104),child: Image.asset("assets/image/onboard_2.png",fit: BoxFit.cover),) 
           ],
           ),
           Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("We will pay for you, all expenses\nrelated to the car",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
-            Padding(padding: EdgeInsets.only(top: 58),child: Image.asset("assets/image/onboard_3.png",fit: BoxFit.cover),) 
+            const Text("We will pay for you, all expenses\nrelated to the car",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
+            Padding(padding: const EdgeInsets.only(top: 58),child: Image.asset("assets/image/onboard_3.png",fit: BoxFit.cover),) 
           ],
           ),
           Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Choose between regular car models\nor exclusive ones",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
-            Padding(padding: EdgeInsets.only(top: 17),child: Image.asset("assets/image/onboard_4.png",fit: BoxFit.cover),) 
+            const Text("Choose between regular car models\nor exclusive ones",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
+            Padding(padding: const EdgeInsets.only(top: 17),child: Image.asset("assets/image/onboard_4.png",fit: BoxFit.cover),) 
           ],
           )
   ];
 
-
+  @override
+  void dispose() {
+    controller.dispose();
+    images=[];
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -174,19 +176,17 @@ List<Widget> images=[
               child: TextButton(
                 onPressed: (){
                   Navigator.popAndPushNamed(context, "/reg");
-                }, 
+                },
+                style: TextButton.styleFrom(
+                  padding: const EdgeInsets.all(10.5),
+                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  ), 
                 child: Text('Skip',style: TextStyle(
-                  color: currentIndex==0?Color.fromRGBO(149,182,255, 1):Colors.white,
+                  color: currentIndex==0?const Color.fromRGBO(149,182,255, 1):Colors.white,
                   fontSize:18,
                   fontFamily: "Inter",
                   fontWeight: FontWeight.w500 
                 ),),
-                style: TextButton.styleFrom(
-                  padding: EdgeInsets.all(10.5),
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  
-                  
-                ),
                 ),
             )
                 ],
@@ -198,16 +198,16 @@ List<Widget> images=[
           
           ] 
         ),
-        backgroundColor: Color.fromRGBO(149,182,255, 1),
+        backgroundColor: const Color.fromRGBO(149,182,255, 1),
       );
 
   }
   Widget buildIndicator(bool isSelected){
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 2),
+      margin: const EdgeInsets.symmetric(horizontal: 2),
       height: isSelected? 8:6,
       width: isSelected? 32:6,
-      decoration:  BoxDecoration(
+      decoration:  const BoxDecoration(
         //  border: Border.all(color: Colors.black),
         shape: BoxShape.rectangle,
         borderRadius: BorderRadius.all(Radius.circular(79)),

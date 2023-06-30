@@ -1,5 +1,7 @@
+import 'dart:convert';
+
 import 'package:dio/dio.dart';
-import 'package:flutter_application_1/http/token/httpToken.dart';
+import 'package:flutter_application_1/http/token/http_token.dart';
 import 'package:flutter_application_1/tokenStorage/token_storage.dart';
 
 class AuthInterceptor extends Interceptor {
@@ -7,8 +9,8 @@ class AuthInterceptor extends Interceptor {
   AuthInterceptor(this.dio);
 
   @override
-  Future onResponse(Response response, ResponseInterceptorHandler handler) async {
-    if (response.statusCode == 401) {
+  Future onError(DioException err, ErrorInterceptorHandler handler) async {
+    if (err.response?.statusCode == 401) {
       // Получаем новый рефреш-токен
       final newToken = await HttpToken().refreshToken();
       String access="";
@@ -20,16 +22,31 @@ class AuthInterceptor extends Interceptor {
       dio.options.headers['Authorization'] = 'Bearer $access';
 
       // Повторяем запрос с обновленным рефреш-токеном
-      final RequestOptions options = response.requestOptions;
-      Response newResponse = await dio.request(options.path, 
+      final RequestOptions? options = err.response?.requestOptions;
+      Response newResponse = await dio.request(
+          options!.path, 
           data: options.data,
           queryParameters: options.queryParameters,
           options: options as Options,
           cancelToken: options.cancelToken);
 
-      return response;
+      return newResponse;
     }
+    if (err.response?.statusCode == 400) {
+      // Получаем новый рефреш-токен
+        print(err.response?.data);
 
-    return super.onResponse(response, handler);
+      handler.next(err);
+    }
+    
+
+    return super.onError(err, handler);
+  }
+
+  @override
+  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
+    print('Отправляемые данные:');
+    print(json.encode(options.data));
+    handler.next(options);
   }
 }

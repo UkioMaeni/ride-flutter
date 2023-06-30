@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
-import '../../../helpers/input_number_formetter.dart';
 
 class ThirdScene extends StatefulWidget{
-  TextEditingController controller;
-   ThirdScene({required this.controller, super.key});
+  final  TextEditingController controller;
+  const ThirdScene({required this.controller, super.key});
   
   @override
   State<StatefulWidget> createState() =>_ThirdSceneState();
@@ -19,7 +17,7 @@ class _ThirdSceneState extends State<ThirdScene>{
 
  _ThirdSceneState();
 
-  FocusNode _focusNode=FocusNode();
+  final FocusNode _focusNode=FocusNode();
   bool _isFocused = false;
   bool errorLen=false;
   
@@ -45,7 +43,6 @@ class _ThirdSceneState extends State<ThirdScene>{
   @override
   Widget build(BuildContext context) {
 
-    double winHeight = MediaQuery.of(context).size.height;
     double winWidth = MediaQuery.of(context).size.width;
 
     return Padding(
@@ -56,12 +53,12 @@ class _ThirdSceneState extends State<ThirdScene>{
                     height: 60,
                     alignment: Alignment.center,
                     decoration:  BoxDecoration(
-                      color: Color.fromRGBO(247,247,253,1),
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                      color: const Color.fromRGBO(247,247,253,1),
+                      borderRadius: const BorderRadius.all(Radius.circular(10)),
                       border: Border.all(
                         width: 1.6,
                         color: errorLen
-                        ? Color.fromRGBO(255,152,152,1)
+                        ? const Color.fromRGBO(255,152,152,1)
                         :_isFocused?Colors.blue :Colors.white
                       )
                     ),

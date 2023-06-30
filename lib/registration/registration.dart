@@ -1,15 +1,10 @@
-import 'dart:ffi';
-import 'dart:ui';
-
-import 'package:dio/dio.dart';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_application_1/http/reg/httpReg.dart';
-import 'package:flutter_application_1/http/token/httpToken.dart';
+import 'package:flutter_application_1/http/reg/http_reg.dart';
+import 'package:flutter_application_1/http/token/http_token.dart';
 import 'package:flutter_application_1/http/user/http_user.dart';
-import 'package:flutter_application_1/registration/scene/OneScene.dart';
-import 'package:flutter_application_1/registration/scene/TwoScene.dart';
+import 'package:flutter_application_1/registration/scene/one_scene.dart';
+import 'package:flutter_application_1/registration/scene/two_scene.dart';
 import 'package:flutter_application_1/registration/scene/third_scene.dart';
 import 'package:flutter_application_1/tokenStorage/token_storage.dart';
 
@@ -25,13 +20,12 @@ class Registration extends StatefulWidget{
 
 class _MyAppState extends State<Registration> {
 
- void isAuth()async{
+ void  isAuth(BuildContext context)async{
   String next=await HttpToken().refreshToken();
   String token=await TokenStorage().getToken("refresh");
   if(next=="auth" && token !="no"){
     Navigator.pushReplacementNamed(context,"/menu" );
   }
-  print(next);
  } 
    //TEMP
   int otp=0;
@@ -62,10 +56,8 @@ class _MyAppState extends State<Registration> {
 
   
   correctText() async{
-    print(step);
-    print(myControllerOneScene.text);
+
       if(myControllerOneScene.text.length!=16){
-        print(myControllerOneScene.text);
         setState(() {
           errorLen=true;
         });
@@ -74,33 +66,27 @@ class _MyAppState extends State<Registration> {
       if(step==0) {
    
         String digitsOnly = myControllerOneScene.text.replaceAll(RegExp(r'[^0-9]'), '');
-        digitsOnly="+1"+digitsOnly;
+        digitsOnly="+1$digitsOnly";
        Map code= await HttpReg().signIn(digitsOnly);
        setState(() {
          otp=code["otp"];
          step=1;
        });
-       print("OTTTP $code");
         
       return;
       }
 
       if(step==1){
-        print("or");
         String codeStr=otpControllers[0].text+otpControllers[1].text+otpControllers[2].text+otpControllers[3].text;
         int code = int.parse(codeStr);
         String phone = myControllerOneScene.text.replaceAll(RegExp(r'[^0-9]'), '');
         phone="+1$phone";
 
         Map tokens = await HttpReg().otpVerify(code,phone);
-        print(tokens["access_token"]);
          await TokenStorage().setToken(tokens["access_token"],tokens["refresh_token"]);
-         String t=await TokenStorage().getToken("refresh");
-          if(t!=null){
-            setState(() {
-              step=2;
-            });
-          }
+          setState(() {
+            step=2;
+          });
         
         return;
       }
@@ -115,7 +101,7 @@ class _MyAppState extends State<Registration> {
 
   @override
   void initState() {
-    isAuth();
+    isAuth(context);
     super.initState();
   }
   @override
@@ -131,7 +117,6 @@ class _MyAppState extends State<Registration> {
   )); 
 
    
-    double winHeight = MediaQuery.of(context).size.height;
     double winWidth = MediaQuery.of(context).size.width;
 
 
@@ -191,7 +176,7 @@ class _MyAppState extends State<Registration> {
                 :step==1
                 ?"OTP Verification(code $otp)"
                 :"How do I address you?",
-                style: TextStyle(
+                style: const TextStyle(
                   fontFamily: "Inter",
                   fontWeight: FontWeight.w500,
                   fontSize: 13
@@ -219,54 +204,52 @@ class _MyAppState extends State<Registration> {
                     ),
                 )
                 ):Container(),
-              Container(
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 15,right: 15,top: 20),
-                      child:  FilledButton(
-                          onPressed: (){
-                            correctText();
-                          },
-                          style: ButtonStyle(
-                            shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(10)
-                            )),
-                            backgroundColor: MaterialStateProperty.all(Color.fromRGBO(64,123,255,1))
-                          ),
-                          child: Container(
-                            alignment: Alignment.center,
-                            height: 60,
-                            child:   Text(
-                               step==0?"Get code":"Continue",
-                              style:  TextStyle(
-                                fontFamily: "Inter",
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16
-                              ),
-                            ),
-                          )
-                      ),
-                    ),
-                    TextButton(
-                      style: ButtonStyle(
-                        overlayColor: MaterialStateProperty.all(Colors.white)
-                      ),
-                      onPressed: (){},
-                      child:  Text(
-                        "Skip",
-                        style: TextStyle(
-                          color: Color.fromRGBO(64,123,255,1),
-                          fontFamily: "Inter",
-                          fontSize: 16,
-                          
-                          fontWeight: FontWeight.w600
+              Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15,right: 15,top: 20),
+                    child:  FilledButton(
+                        onPressed: (){
+                          correctText();
+                        },
+                        style: ButtonStyle(
+                          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10)
+                          )),
+                          backgroundColor: MaterialStateProperty.all(const Color.fromRGBO(64,123,255,1))
                         ),
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 60,
+                          child:   Text(
+                             step==0?"Get code":"Continue",
+                            style:  const TextStyle(
+                              fontFamily: "Inter",
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16
+                            ),
+                          ),
                         )
+                    ),
+                  ),
+                  TextButton(
+                    style: ButtonStyle(
+                      overlayColor: MaterialStateProperty.all(Colors.white)
+                    ),
+                    onPressed: (){},
+                    child:  const Text(
+                      "Skip",
+                      style: TextStyle(
+                        color: Color.fromRGBO(64,123,255,1),
+                        fontFamily: "Inter",
+                        fontSize: 16,
+                        
+                        fontWeight: FontWeight.w600
+                      ),
                       )
-                  ],
-                  
-                ),
+                    )
+                ],
+                
               )
           ],
         ),

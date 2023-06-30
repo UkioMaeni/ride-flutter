@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_application_1/http/cars/car_model.dart';
 import 'package:flutter_application_1/http/instanse.dart';
+import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 
 class CarsHttp{
 
@@ -38,7 +38,7 @@ class CarsHttp{
       "http://31.184.254.86:9099/api/v1/car/model",
       queryParameters: {
         "name":text,
-        "id":id
+        "manufacturer_id":id
       }
     );
       List<CarModel> carModels = [];

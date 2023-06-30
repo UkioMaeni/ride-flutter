@@ -1,5 +1,4 @@
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter/material.dart';
 
 class TokenStorage{
    getToken(String type) async {
@@ -18,10 +17,10 @@ class TokenStorage{
  
 }
 
-setToken(String access_token, String refresh_token) async{
+setToken(String accessToken, String refreshToken) async{
   SharedPreferences prefs = await SharedPreferences.getInstance();
-  prefs.setString("access", access_token);
-  prefs.setString("refresh", refresh_token);
+  prefs.setString("access", accessToken);
+  prefs.setString("refresh", refreshToken);
   return 1;
 }
 

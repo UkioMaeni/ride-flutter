@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:dio/dio.dart';
 import 'package:flutter_application_1/http/city/city_model.dart';
 import 'package:flutter_application_1/http/instanse.dart';
@@ -29,7 +27,6 @@ class HttpCity{
     for (var element in res) {
       cityList.add(CityModel(element["city_id"], element["state_id"], element["city"], element["state"], element["county"], element["longitude"], element["latitude"]));
     }
-    print(cityList.toString());
     return cityList;
   }
 }
