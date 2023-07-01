@@ -1,11 +1,18 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_application_1/http/orders/orders.dart';
 import 'package:flutter_application_1/pages/menupages/create/UI/card_coordinates.dart';
 import 'package:flutter_application_1/pages/menupages/create/auto/auto.dart';
+import 'package:flutter_application_1/pages/menupages/create/card_order/card_order.dart';
+import 'package:flutter_application_1/pages/menupages/create/create_title.dart';
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:flutter_application_1/pages/menupages/provider/store.dart';
+import 'package:flutter_application_1/pages/menupages/search/UI/calendare/calendare.dart';
+import 'package:flutter_application_1/pages/menupages/search/UI/time_picker/time_picker.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
 class CreateTab extends StatefulWidget{
   const CreateTab({super.key});
 
@@ -15,7 +22,20 @@ class CreateTab extends StatefulWidget{
 
 class _CreateTab extends State<CreateTab> {
 
-  
+  DateTime date=DateTime.now();
+
+  void updateDate(DateTime newDate){
+    setState(() {
+      date=newDate;
+    });
+  }
+
+  DateTime time=DateTime.now();
+  void updateTime(DateTime newTime){
+    setState(() {
+      time=newTime;
+    });
+  }
 
       void updateFrom( DataCreate data){
         storeApp.setFrom(data);
@@ -28,6 +48,14 @@ class _CreateTab extends State<CreateTab> {
 
 
 void _showDialogPage(BuildContext context){
+  DateTime validDate=DateTime(
+    date.year,
+    date.month,
+    date.day,
+    time.hour,
+    time.minute,
+  );
+  storeApp.setDate(validDate);
   Navigator.push(
     context,
     MaterialPageRoute(
@@ -35,7 +63,11 @@ void _showDialogPage(BuildContext context){
       
       );
 }
-
+  @override
+  void initState() {
+    HttpUserOrder().getUserOrders();
+    super.initState();
+  }
   @override
   void dispose() {
     super.dispose();
@@ -46,84 +78,82 @@ void _showDialogPage(BuildContext context){
       
     
 
-    return  Padding(
-          padding: const EdgeInsets.only(top: 20,left: 15,right: 15),
-          child: Column(
+    return  FutureBuilder<List<DriverOrder>>(
+      future: HttpUserOrder().getUserOrders(),
+      builder: (context, snapshot){
+        if(snapshot.connectionState==ConnectionState.waiting){
+          return const Center(
+            child: CircularProgressIndicator()
+            );
+        }
+        if(snapshot.hasError){
+            return Center(
+              child: Text("Ошибка"),
+            );
+        }
+        List<DriverOrder>? driverOrder=  snapshot.data;
+        print(driverOrder);
+          if(driverOrder!.isEmpty){
+            return  CreateTitle(back: false,);
+          }
+          return Column(
             children: [
-              const Text(
-                "Создать обьявление",
-                style: TextStyle(
-                  fontFamily: "Poppins",
-                  fontSize: 26,
-                  fontWeight: FontWeight.w600,
-                  color: Color.fromRGBO(51,51,51,1)
-                ),
-                ),
-              Padding(
-                padding: const EdgeInsets.only(top: 40,bottom: 12),
-                child: Observer(
-                  builder: (context) {
-                    return CardCoordinates(
-                    hint: "from",
-                    name: storeApp.from.city,
-                    icon: SvgPicture.asset(
-                          "assets/svg/geoFrom.svg"
-                          ),
-                    update: updateFrom,
-                  );
+              Expanded(
+                child: ListView.builder(
+                  itemCount: driverOrder.length,
+                  itemBuilder: (context, index) {
+                    return CardOrder(driverOrder: driverOrder[index],);
                   },
-                  
-                ),
+                  ),
               ),
-              Observer(
-                builder: (context) {
-                  return CardCoordinates(
-                  hint: "to",
-                  name: storeApp.to.city,
-                  icon: SvgPicture.asset(
-                        "assets/svg/geoTo.svg"
-                        ),
-                  update: updateTo,
-                );
-                },
-                
-              ),
-             //Text("323 ${Provider.of<CreateProvider>(context).price}"),
-                
-              Padding(
-                  padding: const EdgeInsets.only(top:12),
+                Padding(
+                  padding: const EdgeInsets.only(left: 15,right: 15,bottom: 30),
                   child: InkWell(
-                    onTap: (){
-                      _showDialogPage(context);
-                    },
-                    child: Observer(
-                      builder: (context) {
-                        return Container(
-                        alignment: Alignment.center,
-                        width: double.infinity,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: storeApp.from.city!="from"&&storeApp.to.city!="to"?const Color.fromRGBO(64,123,255,1):const Color.fromRGBO(177,177,177,0.5),
-                          borderRadius: BorderRadius.circular(10)
-                          
-                        ),
-                        child: Text(
-                          "Продолжить",
-                          style: TextStyle(
-                            color: storeApp.from.city!="from"&&storeApp.to.city!="to"?const Color.fromRGBO(255,255,255,1):const Color.fromRGBO(255,255,255,0.5),
-                            fontFamily: "Inter",
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600
-                          ),
-                        ),
-                      );
-                      },
-                       
+                  onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => 
+                          Material(
+                            child: Scaffold( 
+                              appBar:AppBar(
+                                systemOverlayStyle: SystemUiOverlayStyle.dark,
+                                toolbarHeight: 0,
+                                backgroundColor: Colors.white,
+                                toolbarOpacity: 0,
+                                elevation: 1,
+                                
+                            ), 
+                              body: CreateTitle(back: true,),
+                              )
+                            ),
+                          )
+                        );
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    width: double.infinity,
+                    height: 60,
+                    decoration: BoxDecoration(
+                      color:const Color.fromRGBO(64,123,255,1),
+                      borderRadius: BorderRadius.circular(10)
+                      
+                    ),
+                    child: const Text(
+                      "Создать поездку",
+                      style: TextStyle(
+                        color: Color.fromRGBO(255,255,255,1),
+                        fontFamily: "Inter",
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600
+                      ),
                     ),
                   ),
-                )
+                              ),
+                ),
             ],
-          ),
-        );
+          );
+      },
+      );
   }
 }

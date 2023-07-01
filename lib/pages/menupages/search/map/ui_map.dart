@@ -9,11 +9,13 @@ class UIMap extends StatefulWidget {
  final double longitude;
  final Function update;
  final String city;
+ final int cityId;
  const UIMap(
       {required this.city,
       required this.update,
       required this.latitude,
       required this.longitude,
+      required this.cityId,
       super.key});
 
   @override
@@ -72,7 +74,7 @@ class _UIMapState extends State<UIMap> {
           child: InkWell(
             onTap: () {
               DataCreate newDate =
-                  DataCreate(widget.city, latitudeRide, longitudeRide);
+                  DataCreate(widget.city, latitudeRide, longitudeRide,widget.cityId);
                   widget.update(newDate);
               Navigator.of(context)
                   .popUntil((route) => route.settings.name == '/menu');

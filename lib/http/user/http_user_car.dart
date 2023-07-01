@@ -56,6 +56,27 @@ class Preferences{
     };
   }
 }
+///get car
+class UserCar{
+  int carId;
+  int numberOfSeats;
+  String model;
+  String manufacturer;
+  String autoNumber;
+  String color;
+  String year;
+  Preferences preferences;
+  UserCar({
+    required this.carId,
+    required this.numberOfSeats,
+    required this.model,
+    required this.manufacturer,
+    required this.autoNumber,
+    required this.color,
+    required this.year,
+    required this.preferences
+  });
+}
 
 class HttpUserCar{
  
@@ -81,7 +102,7 @@ class HttpUserCar{
     )
     );
     print(response.data);
-    return 0;
+    return response.data["data"]["car_id"];
   }catch(e){
     print(e);
       return -1;
@@ -89,24 +110,10 @@ class HttpUserCar{
  
  }
 
- Future<Map<String,dynamic>> getUser()async{
+ Future<List<UserCar>> getUserCar()async{
    String access= await TokenStorage().getToken("access");
-  if(access=="no") return {};
-   Dio dio = Dio(
-    BaseOptions(
-      baseUrl: baseUrl,
-      headers: {
-        "Authorization":"Bearer $access"
-      }
-      )
-    );
-
-  dio.interceptors.add(InterceptorsWrapper(
-    onError: (error, handler){
-      handler.next(error);
-    },
-  ));
-
+  if(access=="no") return [];
+   
   Response response; 
 
   try{
@@ -118,9 +125,29 @@ class HttpUserCar{
         }
       )
     );
-    return {};
+    List<UserCar> userCar=[];
+    List<dynamic>list= response.data["data"];
+    userCar=list.map(
+      (el) =>UserCar(
+        carId: el["car_id"], 
+        numberOfSeats: el["number_of_seats"], 
+        model: el["model"], 
+        manufacturer: el["manufacturer"], 
+        autoNumber: el["auto_number"], 
+        color: el["color"], 
+        year: el["year"], 
+        preferences: Preferences(
+          smoking: el["preferences"]["smoking"], 
+          luggage: el["preferences"]["luggage"], 
+          childCarSeat: el["preferences"]["child_car_seat"], 
+          animals: el["preferences"]["animals"]
+          ))
+      ).toList();
+    print(response.data);
+
+    return userCar;
   }catch(e){
-    return {};
+    return [];
   }
  }
 }

@@ -51,7 +51,6 @@ class _CalendarModalState extends State<CalendarModal> {
                               
                             });
                           },
-                    
                       
                     ),
                   ],

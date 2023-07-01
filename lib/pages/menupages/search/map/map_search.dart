@@ -38,6 +38,7 @@ class _MapSearchState extends State<MapSearch> {
                     city:arguments.city,
                     latitude: double.parse(arguments.latitude) , 
                     longitude: double.parse(arguments.longitude),
+                    cityId:arguments.cityId,
                     update:widget.update, 
                     ),
                 

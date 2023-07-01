@@ -17,7 +17,8 @@ class MapPage {
   String longitude;
   String latitude;
   String city;
-  MapPage(this.longitude, this.latitude, this.city);
+  int cityId;
+  MapPage(this.longitude, this.latitude, this.city,this.cityId);
 }
 
 class SearchFrom extends StatefulWidget {
@@ -32,8 +33,8 @@ class SearchFrom extends StatefulWidget {
 
 class _SearchFromState extends State<SearchFrom> {
 
-  void goToMap(BuildContext context, String longitude, String latitude, String city) {
-    MapPage params = MapPage(longitude, latitude, city);
+  void goToMap(BuildContext context, String longitude, String latitude, String city,int cityId) {
+    MapPage params = MapPage(longitude, latitude, city,cityId);
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -199,7 +200,9 @@ class _SearchFromState extends State<SearchFrom> {
                                           context,
                                           cityList[index].longitude,
                                           cityList[index].latitude,
-                                          cityList[index].city);
+                                          cityList[index].city,
+                                          cityList[index].cityId
+                                          );
                                     },
                                     child: SizedBox(
                                         height: 43,

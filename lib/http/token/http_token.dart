@@ -30,7 +30,6 @@ class HttpToken{
         "token":token
       }
       );
-      print(response.data);
       await TokenStorage().setToken(response.data["data"]["access_token"], response.data["data"]["refresh_token"]);
       final to=await TokenStorage().getToken("access");
       print(to);

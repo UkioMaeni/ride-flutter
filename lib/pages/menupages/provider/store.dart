@@ -6,15 +6,21 @@ class StoreController = ControllerBase with _$Controller;
 
 abstract class ControllerBase with Store{
   @observable
-  DataCreate from =DataCreate("dd",0,0);
+  DateTime date=DateTime.now();
   @observable
-  DataCreate to =DataCreate("",0,0);
+  DataCreate from =DataCreate("dd",0,0,-1);
+  @observable
+  DataCreate to =DataCreate("",0,0,-1);
   @observable
   String price ="";
   @observable
   CarData car = CarData(CarModel(-1,""), CarModel(-1,""), "", 0);
   @observable
   DopInfo dopInfo =DopInfo(3,false, false, false, false, "");
+  @action
+  void setDate(DateTime date_) {
+    date = date_;
+  }
   @action
   void setFrom(DataCreate from_) {
     from = from_;

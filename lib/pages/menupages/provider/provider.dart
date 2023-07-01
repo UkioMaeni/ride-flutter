@@ -18,7 +18,8 @@ class DataCreate{
   String city;
   double longitude;
   double latitude;
-  DataCreate(this.city,this.latitude,this.longitude);
+  int cityId;
+  DataCreate(this.city,this.latitude,this.longitude,this.cityId);
 }
 
 class CarModel{
@@ -37,28 +38,19 @@ class CarData{
 
 class CreateProvider with ChangeNotifier {
 
-  DataCreate _from =DataCreate("",0,0);
-  DataCreate _to =DataCreate("",0,0);
+
   String _price ="";
   CarData _car = CarData(CarModel(-1,""), CarModel(-1,""), "", 0);
   DopInfo _dopInfo =DopInfo(3,false, false, false, false, "");
   
 //getters
-  DataCreate get from => _from;
-  DataCreate get to => _to;
+
   String get price=>_price;
   CarData get car=>_car;
   DopInfo get dopInfo=>_dopInfo;
 
 //setters
-  void setFrom(DataCreate from) {
-    _from = from;
-    notifyListeners();
-  }
-  void setTo(DataCreate to) {
-    _to = to;
-    notifyListeners();
-  }
+
   void setPrice(String price) {
     _price = price;
     notifyListeners();
@@ -77,8 +69,8 @@ class CreateProvider with ChangeNotifier {
 
 class SearchProvider with ChangeNotifier {
 
-  DataCreate _from =DataCreate("from",0,0);
-  DataCreate _to =DataCreate("to",0,0);
+  DataCreate _from =DataCreate("from",0,0,-1);
+  DataCreate _to =DataCreate("to",0,0,-1);
   String _price ="";
   
 //getters

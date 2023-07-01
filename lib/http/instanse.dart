@@ -10,6 +10,7 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
+    print(err.response?.data);
     if (err.response?.statusCode == 401) {
       // Получаем новый рефреш-токен
       final newToken = await HttpToken().refreshToken();
@@ -45,8 +46,6 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print('Отправляемые данные:');
-    print(json.encode(options.data));
     handler.next(options);
   }
 }

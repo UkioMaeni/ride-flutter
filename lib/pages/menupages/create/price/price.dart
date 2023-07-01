@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
+import 'package:flutter_application_1/http/orders/orders.dart';
 import 'package:flutter_application_1/http/user/http_user_car.dart';
 import 'package:flutter_application_1/pages/menupages/provider/store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -34,8 +35,54 @@ class _PriceState extends State<Price> {
         )
     );
     print("go");
-    final res=await HttpUserCar().createUserCar(clientCar);
-    print(res);
+    HttpUserCar().createUserCar(clientCar)
+    .then(
+      (carId){
+
+        RideInfo rideInfo=RideInfo(
+          price: double.parse(storeApp.price), 
+          numberOfSeats: storeApp.dopInfo.countPassanger
+        );
+        Preferences preferences=Preferences(
+          smoking: storeApp.dopInfo.smoking, 
+          luggage: storeApp.dopInfo.baggage, 
+          childCarSeat: storeApp.dopInfo.childPassanger, 
+          animals: storeApp.dopInfo.animal
+        );
+        List<Location> locations=[
+          Location(
+            cityId: storeApp.from.cityId, 
+            sortId: 1, 
+            pickUp: true, 
+            location: storeApp.from.city, 
+            longitude: storeApp.from.longitude, 
+            latitude: storeApp.from.latitude, 
+            departureTime: storeApp.date.toUtc().millisecondsSinceEpoch ~/ 1000
+            ),
+            Location(
+            cityId: storeApp.to.cityId, 
+            sortId: 2, 
+            pickUp: false, 
+            location: storeApp.to.city, 
+            longitude: storeApp.to.longitude, 
+            latitude: storeApp.to.latitude, 
+            departureTime: -1
+            ),
+        ];
+        UserOrder userOrder=UserOrder(
+          clientAutoId: carId,
+          rideInfo: rideInfo, 
+          preferences: preferences, 
+          locations: locations
+        );
+        HttpUserOrder().createUserOrder(userOrder)
+        .then((_){
+            Navigator.of(context)
+                  .popUntil((route) => route.settings.name == '/menu');
+        });
+      }
+      );
+    
   }
 
   @override

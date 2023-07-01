@@ -45,6 +45,7 @@ dependencies:
   table_calendar: ^3.0.9
   mobx: ^2.2.0
   flutter_mobx: ^2.0.6+5
+  flutter_time_picker_spinner: ^2.0.0
 
 dev_dependencies:
   flutter_test:
@@ -89,6 +90,12 @@ flutter:
     - assets/svg/personPlus.svg
     - assets/svg/information.svg
     - assets/svg/money.svg
+    - assets/svg/personSeats.svg
+    - assets/svg/personEmptySeats.svg
+    - assets/svg/childSeats.svg
+    - assets/svg/animals.svg
+    - assets/svg/smoking.svg
+    - assets/svg/luggage.svg
   # To add assets to your application, add an assets section, like this:
   # assets:
   #   - images/a_dot_burr.jpeg
