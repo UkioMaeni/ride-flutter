@@ -13,7 +13,7 @@ class Punkt extends StatelessWidget   {
     return Padding(
       padding: const EdgeInsets.only(left: 15,right: 22.5),
       child: GestureDetector(
-        onTap: ()=>onTap(),
+        onTap: ()=>onTap(context),
         child: Container(
           alignment: Alignment.centerLeft,
           decoration: const BoxDecoration(

@@ -1,6 +1,12 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/helpers/color_constants.dart';
+import 'package:flutter_application_1/localization/localization.dart';
+import 'package:flutter_application_1/main.dart';
+import 'package:flutter_application_1/pages/loader/loader.dart';
+import 'package:flutter_application_1/registration/registration.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 
 
@@ -15,17 +21,16 @@ class _MyAppState extends State<Onboard> {
   int currentIndex=0;
   Color textColor= Colors.white;
   final PageController controller= PageController();
+
+  bool initialize=false;
  
-  frameDispatcher()async{
-    //TODO String refresh =await TokenStorage().getToken("refresh");
-    
-  }
+ 
 List<Widget> images=[
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Goes to meet people who just got\ntheir license",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
-            Padding(padding: const EdgeInsets.only(top: 93),child: Image.asset("assets/image/onboard_1.png",fit: BoxFit.cover),
+            const Text("Goes to meet people who just got\ntheir license",style: TextStyle(color: Colors.white,fontFamily: "SF",fontSize: 18,fontWeight: FontWeight.w400)),
+            Padding(padding: const EdgeInsets.only(top: 93),child: appAssets.onBoard1,
             ) 
           ],
           )
@@ -33,26 +38,32 @@ List<Widget> images=[
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Our company is a leader by the\nnumber of cars in the fleet",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
-            Padding(padding: const EdgeInsets.only(top: 104),child: Image.asset("assets/image/onboard_2.png",fit: BoxFit.cover),) 
+            const Text("Our company is a leader by the\nnumber of cars in the fleet",style: TextStyle(color: Colors.white,fontFamily: "SF",fontSize: 18,fontWeight: FontWeight.w400)),
+            Padding(padding: const EdgeInsets.only(top: 104),child: appAssets.onBoard2,) 
           ],
           ),
           Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("We will pay for you, all expenses\nrelated to the car",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
-            Padding(padding: const EdgeInsets.only(top: 58),child: Image.asset("assets/image/onboard_3.png",fit: BoxFit.cover),) 
+            const Text("We will pay for you, all expenses\nrelated to the car",style: TextStyle(color: Colors.white,fontFamily: "SF",fontSize: 18,fontWeight: FontWeight.w400)),
+            Padding(padding: const EdgeInsets.only(top: 58),child: appAssets.onBoard3) 
           ],
           ),
           Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Choose between regular car models\nor exclusive ones",style: TextStyle(color: Colors.white,fontFamily: "Inter",fontSize: 18)),
-            Padding(padding: const EdgeInsets.only(top: 17),child: Image.asset("assets/image/onboard_4.png",fit: BoxFit.cover),) 
+            const Text("Choose between regular car models\nor exclusive ones",style: TextStyle(color: Colors.white,fontFamily: "SF",fontSize: 18,fontWeight: FontWeight.w400)),
+            Padding(padding: const EdgeInsets.only(top: 17),child: appAssets.onBoard4,)
           ],
           )
   ];
 
+  TextEditingController _myController=TextEditingController();
+  @override
+  void initState() {
+    _myController.text=appCode;
+    super.initState();
+  }
   @override
   void dispose() {
     controller.dispose();
@@ -66,6 +77,7 @@ List<Widget> images=[
       statusBarColor: const Color.fromRGBO(0, 0, 0, 0)
   )); 
 
+      final localizationManager = Localizations.of<LocalizationManager>(context, LocalizationManager);
       
 
     double winHeight = MediaQuery.of(context).size.height;
@@ -74,7 +86,7 @@ List<Widget> images=[
 
     return   Scaffold(
         body: Stack(
-          alignment: Alignment.bottomRight,
+          alignment: Alignment.bottomCenter,
           children:[
             Column(children: [
             SizedBox(
@@ -99,7 +111,7 @@ List<Widget> images=[
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Your first car without \na driver's license",style: TextStyle(color: textColor,fontSize: 28,fontFamily: "Josefin",fontWeight: FontWeight.w500),),
+                            Text("Your ${localizationManager?.translate("test")} first car without \na driver's license",style: TextStyle(color: textColor,fontSize: 28,fontFamily: "SF",fontWeight: FontWeight.w700),),
                             Padding(
                               padding: const EdgeInsets.only(top: 12),
                               child: images[index%images.length],
@@ -119,7 +131,9 @@ List<Widget> images=[
           ]),
           SizedBox(
             width: MediaQuery.of(context).size.width,
-            child:Stack(alignment: Alignment.bottomCenter, children: [
+            child:Stack(
+              alignment: Alignment.bottomCenter, 
+              children: [
               Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -128,19 +142,19 @@ List<Widget> images=[
               
             ]),
             Padding(
-              padding: const EdgeInsets.only(left: 11,right: 12),
+              padding: const EdgeInsets.only(left: 11.5,right: 11.5),
               child: Container(
-                margin: const EdgeInsets.only(top: 10.5),
+                margin: const EdgeInsets.only(top: 10),
                 child: FilledButton(
                   
                   onPressed: (){
                     if(currentIndex==3){
-                      Navigator.popAndPushNamed(context, "/reg");
+                      Navigator.pushAndRemoveUntil(context,
+                      MaterialPageRoute(builder: (context) => Registration()),
+                      (route) => false,);
                     }
                     if(currentIndex<3){
                         controller.jumpToPage(currentIndex+1);
-                    }else{
-                      frameDispatcher();
                     }
                     
                   
@@ -155,15 +169,15 @@ List<Widget> images=[
                   child: Container(
                       alignment: Alignment.center,
                     width: MediaQuery.of(context).size.width,
-                    height: 54,
-                    child: const Text(
+                    height: 64,
+                    child:  Text(
                       "Next",
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        color: Color.fromRGBO(51,51,51,1),
-                        fontFamily: "Inter",
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500
+                        color: brandBlue,
+                        fontFamily: "SF",
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700
                         ),
                       ),
                   ),
@@ -171,11 +185,19 @@ List<Widget> images=[
                   ),
               ),
             ),
+            Container(
+              height: 80,
+              child: TextField(
+                controller: _myController,
+              ),
+            ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 53),
+              padding: const EdgeInsets.only(bottom: 84),
               child: TextButton(
                 onPressed: (){
-                  Navigator.popAndPushNamed(context, "/reg");
+                  Navigator.pushAndRemoveUntil(context,
+                      MaterialPageRoute(builder: (context) => Registration()),
+                      (route) => false,);
                 },
                 style: TextButton.styleFrom(
                   padding: const EdgeInsets.all(10.5),
@@ -184,7 +206,7 @@ List<Widget> images=[
                 child: Text('Skip',style: TextStyle(
                   color: currentIndex==0?const Color.fromRGBO(149,182,255, 1):Colors.white,
                   fontSize:18,
-                  fontFamily: "Inter",
+                  fontFamily: "Poppins",
                   fontWeight: FontWeight.w500 
                 ),),
                 ),

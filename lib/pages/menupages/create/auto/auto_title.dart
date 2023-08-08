@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
+import 'package:flutter_application_1/http/user/http_user_car.dart';
+import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
 import 'package:flutter_application_1/pages/menupages/create/auto/auto.dart';
 import 'package:flutter_application_1/pages/menupages/create/card_car/card_car.dart';
 import 'package:flutter_application_1/pages/menupages/create/dop_options/dop_options.dart';
@@ -8,8 +10,15 @@ import 'package:flutter_application_1/pages/menupages/create/enumMap/enum_map.da
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:flutter_application_1/pages/menupages/provider/store.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+
+final Preferences defaultPreferences=Preferences(smoking: false, luggage: false, childCarSeat: false, animals: false);
+final int defaultcountPass=4;
+
+
+
 class AutoTitle extends StatefulWidget{
-  const AutoTitle({super.key});
+  final Function side;
+  const AutoTitle({required this.side, super.key});
 
   @override
   State<AutoTitle> createState() => _AutoTitleState();
@@ -71,43 +80,11 @@ class _AutoTitleState extends State<AutoTitle> {
           padding: const EdgeInsets.only(top: 20,left: 15,right: 15),
           child: Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 28),
-                child: Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 24),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: SvgPicture.asset(
-                              "assets/svg/back.svg",
-                              height: 12,
-                              width: 6,
-                                  ),
-                            ),
-                          ),
-                          const Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            "Какой авто",
-                            style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromRGBO(51, 51, 51, 1),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-              ),
+              BarNavigation(back: true, title: "Какой авто"),
               CardCar(update: updateName, types: MyEnum.name,title:car.name.name,other: CarModel(-1, "_"),),
               CardCar(update: updateModel, types: MyEnum.model,title:car.model.name,other: car.name,),
               Padding(
-                padding: const EdgeInsets.only(top: 12,bottom: 12),
+                padding: const EdgeInsets.only(bottom: 12),
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   alignment: Alignment.center,
@@ -163,7 +140,7 @@ class _AutoTitleState extends State<AutoTitle> {
                  Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const DopOptions()),
+                          builder: (context) => DopOptions(side: widget.side, count: defaultcountPass,preferences: defaultPreferences,carId: -1,)),
                           );
                 },
                 child: Container(

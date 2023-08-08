@@ -1,12 +1,25 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/helpers/color_constants.dart';
 import 'package:flutter_application_1/http/reg/http_reg.dart';
 import 'package:flutter_application_1/http/token/http_token.dart';
 import 'package:flutter_application_1/http/user/http_user.dart';
+import 'package:flutter_application_1/main.dart';
+import 'package:flutter_application_1/pages/menupages/mainapp.dart';
+import 'package:flutter_application_1/pages/menupages/provider/store.dart';
 import 'package:flutter_application_1/registration/scene/one_scene.dart';
 import 'package:flutter_application_1/registration/scene/two_scene.dart';
 import 'package:flutter_application_1/registration/scene/third_scene.dart';
-import 'package:flutter_application_1/tokenStorage/token_storage.dart';
+import 'package:flutter_application_1/socket/socket.dart';
+import 'package:flutter_application_1/sqllite/sqllite.dart';
+import 'package:flutter_application_1/localStorage/tokenStorage/token_storage.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
+
 
 
 
@@ -17,16 +30,11 @@ class Registration extends StatefulWidget{
   @override
   State<Registration> createState() => _MyAppState();
 }
-
+int second=0;
 class _MyAppState extends State<Registration> {
+  late Timer timer;
 
- void  isAuth(BuildContext context)async{
-  String next=await HttpToken().refreshToken();
-  String token=await TokenStorage().getToken("refresh");
-  if(next=="auth" && token !="no"){
-    Navigator.pushReplacementNamed(context,"/menu" );
-  }
- } 
+
    //TEMP
   int otp=0;
 
@@ -68,6 +76,7 @@ class _MyAppState extends State<Registration> {
         String digitsOnly = myControllerOneScene.text.replaceAll(RegExp(r'[^0-9]'), '');
         digitsOnly="+1$digitsOnly";
        Map code= await HttpReg().signIn(digitsOnly);
+       print(code);
        setState(() {
          otp=code["otp"];
          step=1;
@@ -84,6 +93,9 @@ class _MyAppState extends State<Registration> {
 
         Map tokens = await HttpReg().otpVerify(code,phone);
          await TokenStorage().setToken(tokens["access_token"],tokens["refresh_token"]);
+         if(tokens["is_client_new"]!=null && tokens["is_client_new"]==false){
+          Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => MainApp(),), (route) => false);
+         }
           setState(() {
             step=2;
           });
@@ -101,7 +113,7 @@ class _MyAppState extends State<Registration> {
 
   @override
   void initState() {
-    isAuth(context);
+   
     super.initState();
   }
   @override
@@ -119,8 +131,9 @@ class _MyAppState extends State<Registration> {
    
     double winWidth = MediaQuery.of(context).size.width;
 
-
+  print(step);
     return   Scaffold(
+      
       appBar: AppBar(
           systemOverlayStyle: SystemUiOverlayStyle.dark,
           toolbarHeight: 0,
@@ -141,29 +154,29 @@ class _MyAppState extends State<Registration> {
               child: Stack(
                 alignment: Alignment.topLeft,
                 children: [
-                  step!=0?TextButton(
-                    style: ButtonStyle(
-                        overlayColor: MaterialStateProperty.all(Colors.white)
-                      ),
-                  onPressed: (){
+                  step!=0?InkWell(
+                  onTap: (){
                     setState(() {
                       step-=1;
                     });
                   },
-                   child:const Text(
+                   child: Text(
                     "Back",
                     style:  TextStyle(
-                      color: Color.fromRGBO(64,123,255,1),
+                      color: brandBlue,
                       fontFamily: "Inter",
                       fontWeight: FontWeight.w600,
                       fontSize: 16
                     ),
                     ),
                    ):const Offstage(),
-                   Container(
-                    alignment: Alignment.center,
-                    child: Image.asset('assets/image/reg.png')
-                    ),
+                   Padding(
+                    padding: EdgeInsets.only(top: step==0?0:24),
+                     child: Container(
+                      alignment: Alignment.center,
+                      child: Image.asset('assets/image/registration.png')
+                      ),
+                   ),
                 ],
               )
             ),
@@ -207,7 +220,7 @@ class _MyAppState extends State<Registration> {
               Column(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 15,right: 15,top: 20),
+                    padding: const EdgeInsets.only(left: 15,right: 15,top: 20,bottom: 0),
                     child:  FilledButton(
                         onPressed: (){
                           correctText();
@@ -222,7 +235,11 @@ class _MyAppState extends State<Registration> {
                           alignment: Alignment.center,
                           height: 60,
                           child:   Text(
-                             step==0?"Get code":"Continue",
+                             step==0
+                             ?"Get code"
+                             :step==1
+                             ? "Continue"
+                             :"Sign up",
                             style:  const TextStyle(
                               fontFamily: "Inter",
                               fontWeight: FontWeight.w600,
@@ -232,22 +249,22 @@ class _MyAppState extends State<Registration> {
                         )
                     ),
                   ),
-                  TextButton(
-                    style: ButtonStyle(
-                      overlayColor: MaterialStateProperty.all(Colors.white)
-                    ),
-                    onPressed: (){},
-                    child:  const Text(
+                  Container(
+                    width: 80,
+                    height: 46,
+                    alignment: Alignment.topCenter,
+                    padding: EdgeInsets.only(top:12),
+                    child: const Text(
                       "Skip",
                       style: TextStyle(
                         color: Color.fromRGBO(64,123,255,1),
-                        fontFamily: "Inter",
-                        fontSize: 16,
+                        fontFamily: "SF",
+                        fontSize: 18,
                         
-                        fontWeight: FontWeight.w600
+                        fontWeight: FontWeight.w500
                       ),
-                      )
-                    )
+                      ),
+                  )
                 ],
                 
               )

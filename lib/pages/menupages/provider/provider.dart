@@ -16,10 +16,12 @@ class DopInfo{
 
 class DataCreate{
   String city;
+  String state;
+  String fullAdress;
   double longitude;
   double latitude;
-  int cityId;
-  DataCreate(this.city,this.latitude,this.longitude,this.cityId);
+  int? cityId;
+  DataCreate(this.city,this.state, this.latitude,this.longitude,this.fullAdress,[this.cityId]);
 }
 
 class CarModel{
@@ -69,8 +71,8 @@ class CreateProvider with ChangeNotifier {
 
 class SearchProvider with ChangeNotifier {
 
-  DataCreate _from =DataCreate("from",0,0,-1);
-  DataCreate _to =DataCreate("to",0,0,-1);
+  DataCreate _from =DataCreate("","",0,0,"");
+  DataCreate _to =DataCreate("","",0,0,"");
   String _price ="";
   
 //getters

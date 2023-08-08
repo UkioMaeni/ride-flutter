@@ -11,10 +11,8 @@ TextStyle localTextStyle = const TextStyle(
 
 class ModalPersonCount extends StatefulWidget {
  final int count;
- final Function increment;
- final Function decrement;
  final Function setter;
- const  ModalPersonCount({required this.setter, required this.count,required this.increment, required this.decrement, super.key});
+ const  ModalPersonCount({required this.setter, required this.count,super.key});
 
 
   @override
@@ -94,51 +92,59 @@ void _decrement(){
                         )
                       ],
                   ),
-                  const Padding(
+                   Padding(
                     padding: EdgeInsets.only(top: 20,bottom: 20),
-                    child: Text(
-                      "Колличество\nбронируемых мест",
-                      style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontSize: 24,
-                        fontWeight: FontWeight.w600,
-                        color: Color.fromRGBO(51,51,51,1)
-                      ),
-                      ),
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      InkWell(
-                        onTap: (){
-                          _decrement();
-                        },
-                        child: SvgPicture.asset(
-                          "assets/svg/personMinus.svg",
-                            // ignore: deprecated_member_use
-                            color:count>1?const Color.fromRGBO(58,121,215,1):const Color.fromRGBO(177,177,177,1),
-                        ),
-                      ),
-                      Text(
-                        count.toString(),
-                        style: const TextStyle(
-                          fontFamily: "Poppins",
-                          fontSize: 56,
+                    child: Container(
+                      alignment: Alignment.center,
+                      child: Text(
+                        "Колличество\nбронируемых мест",
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontFamily: "SF",
+                          fontSize: 24,
                           fontWeight: FontWeight.w700,
                           color: Color.fromRGBO(51,51,51,1)
-                        )
                         ),
-                       InkWell(
-                        onTap: (){
-                          _increment();
-                        },
-                         child: SvgPicture.asset(
-                          "assets/svg/personPlus.svg",
-                            // ignore: deprecated_member_use
-                            color:count<4?const Color.fromRGBO(58,121,215,1):const Color.fromRGBO(177,177,177,1),
-                                             ),
-                       )
-                    ],
+                        ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Center(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          InkWell(
+                            onTap: (){
+                              _decrement();
+                            },
+                            child: SvgPicture.asset(
+                              "assets/svg/personMinus.svg",
+                                // ignore: deprecated_member_use
+                                color:count>1?const Color.fromRGBO(58,121,215,1):const Color.fromRGBO(177,177,177,1),
+                            ),
+                          ),
+                          Text(
+                            count.toString(),
+                            style: const TextStyle(
+                              fontFamily: "SF",
+                              fontSize: 56,
+                              fontWeight: FontWeight.w700,
+                              color: Color.fromRGBO(51,51,51,1)
+                            )
+                            ),
+                           InkWell(
+                            onTap: (){
+                              _increment();
+                            },
+                             child: SvgPicture.asset(
+                              "assets/svg/personPlus.svg",
+                                // ignore: deprecated_member_use
+                                color:count<4?const Color.fromRGBO(58,121,215,1):const Color.fromRGBO(177,177,177,1),
+                                                 ),
+                           )
+                        ],
+                      ),
+                    ),
                   )
                 ],
               ),

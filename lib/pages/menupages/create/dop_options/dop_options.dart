@@ -1,13 +1,20 @@
 
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/http/user/http_user_car.dart';
+import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
 import 'package:flutter_application_1/pages/menupages/create/price/price.dart';
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:flutter_application_1/pages/menupages/provider/store.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class DopOptions extends StatefulWidget {
-  const DopOptions({super.key});
+  final Function side;
+  final Preferences preferences;
+  final int count;
+  final int carId;
+  const DopOptions({required this.side, required this.preferences,required this.count,required this.carId, super.key});
 
   @override
   State<DopOptions> createState() => _DopOptionsState();
@@ -18,36 +25,37 @@ class _DopOptionsState extends State<DopOptions> {
   TextEditingController myController = TextEditingController();
 
   ////////////////////////answer options
+  late int count;
   //countPassanger:
-  int countPassanger = 3;
+  late int countPassanger;
   setCountPassanger(int value) {
     setState(() {
       countPassanger = value;
     });
   }
   //baggage:
-  int baggage = 2;
+  late int baggage;
   setBaggage(int value) {
     setState(() {
       baggage = value;
     });
   }
   //childPassanger:
-  int childPassange = 2;
+  late int childPassange;
   setChildPassange(int value) {
     setState(() {
       childPassange = value;
     });
   }
   //animalRide:
-  int animalRide = 2;
+  late int animalRide;
   setAnimalRide(int value) {
     setState(() {
       animalRide = value;
     });
   }
   //smoking:
-  int smoking = 2;
+  late int smoking;
   setSmoking(int value) {
     setState(() {
       smoking = value;
@@ -55,6 +63,12 @@ class _DopOptionsState extends State<DopOptions> {
   }
     @override
   void initState() {
+    count=widget.count;
+    countPassanger=widget.count;
+    animalRide=widget.preferences.animals?1:2;
+    childPassange=widget.preferences.childCarSeat?1:2;
+    baggage=widget.preferences.luggage?1:2;
+    smoking=widget.preferences.smoking?1:2;
     super.initState();
   }
   @override
@@ -71,39 +85,7 @@ class _DopOptionsState extends State<DopOptions> {
       ),
       body:Column(
         children: [
-          Container(
-      color: Colors.white,
-      child: Stack(
-  alignment: Alignment.centerLeft,
-  children: [
-      Padding(
-         padding: const EdgeInsets.only(left: 24),
-        child: InkWell(
-          onTap: () {
-            Navigator.pop(context);
-          },
-          child: SvgPicture.asset(
-          "assets/svg/back.svg",
-          height: 12,
-          width: 6,
-               ),
-        ),
-       ),
-      const Align(
-      alignment: Alignment.center,
-      child: Text(
-        "Дополнительные опции",
-        style: TextStyle(
-          fontFamily: "Poppins",
-          fontSize: 20,
-          fontWeight: FontWeight.w600,
-          color: Color.fromRGBO(51, 51, 51, 1),
-        ),
-      ),
-    ),
-  ],
-),
-),
+        BarNavigation(back: true, title: "Доп"),
 Expanded(
   child:   ListView(
   
@@ -112,7 +94,7 @@ Expanded(
           children: [
  
             Container(  
-              padding: const EdgeInsets.only(top: 24, bottom: 8),  
+              padding: const EdgeInsets.only( bottom: 8),  
               child: Text(
   
                 "Выберите",
@@ -126,17 +108,7 @@ Expanded(
             Row(
   
               children: [
-  
-                pointAnswer(1, countPassanger, "1", setCountPassanger),
-  
-                const SizedBox(width: 8),
-  
-                pointAnswer(2, countPassanger, "2", setCountPassanger),
-  
-                const SizedBox(width: 8),
-  
-                pointAnswer(3, countPassanger, "3", setCountPassanger),
-  
+                for(int i =0;i<count;i++) pointAnswer(i+1, countPassanger, "${i+1}", setCountPassanger),
               ],
   
             ),
@@ -275,9 +247,13 @@ Expanded(
                   bool smoking_=smoking==1?true:false;
                   DopInfo dopInfo=DopInfo(countPassanger,baggage_,childPassange_,animal_,smoking_,myController.text);
                   storeApp.setDopInfo(dopInfo);
+                  print(storeApp.dopInfo.animal);
                   Navigator.push(
                     context, MaterialPageRoute(
-                      builder: (context)=>const Price(),
+                      builder: (context)=> Price(
+                        side:widget.side,
+                        carId:widget.carId,
+                      ),
                       )
                       );
                 },
@@ -313,31 +289,35 @@ Expanded(
   }
 }
 
-Widget pointAnswer(
-    dynamic index, dynamic currentIndex, String text, Function setIndex) {
+Widget pointAnswer(dynamic index, dynamic currentIndex, String text, Function setIndex) {
   return GestureDetector(
     onTap: () {
       setIndex(index);
     },
-    child: Container(
-      width: 56,
-      height: 32,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-            color: index == currentIndex
-                ? const Color.fromRGBO(64, 123, 255, 1)
-                : const Color.fromRGBO(173, 179, 188, 1)),
-      ),
-      child: Center(
-        child: Text(
-          text,
-          textAlign: TextAlign.center,
-          style: currentTextStyle.copyWith(
-            color: const Color.fromRGBO(85, 85, 85, 1),
+    child: Row(
+      children: [
+        Container(
+          width: 56,
+          height: 32,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(
+                color: index == currentIndex
+                    ? const Color.fromRGBO(64, 123, 255, 1)
+                    : const Color.fromRGBO(173, 179, 188, 1)),
+          ),
+          child: Center(
+            child: Text(
+              text,
+              textAlign: TextAlign.center,
+              style: currentTextStyle.copyWith(
+                color: const Color.fromRGBO(85, 85, 85, 1),
+              ),
+            ),
           ),
         ),
-      ),
+        const SizedBox(width: 8),
+      ],
     ),
   );
 }

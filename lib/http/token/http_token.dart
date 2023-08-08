@@ -1,9 +1,11 @@
 import 'package:dio/dio.dart';
-import 'package:flutter_application_1/tokenStorage/token_storage.dart';
+import 'package:flutter_application_1/http/instanse.dart';
+import 'package:flutter_application_1/localStorage/tokenStorage/token_storage.dart';
 const baseUrl="http://31.184.254.86:9099/api/v1/refresh-token";
 class HttpToken{
   Future<String> refreshToken() async{
     final token =await TokenStorage().getToken("refresh");
+    print(token);
     if(token=="no"){
       return "noAuth";
     }
@@ -35,6 +37,10 @@ class HttpToken{
       print(to);
       return "auth";
     }catch(e){
+      if(e is ErrorTypeTimeout){
+        return ErrorTypeTimeoutEnum.timeout as String;
+      }
+      print(e);
         return "noAuth";
     }
       

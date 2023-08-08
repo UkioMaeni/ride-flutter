@@ -4,8 +4,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
 import 'package:flutter_application_1/http/city/city_model.dart';
 import 'package:flutter_application_1/http/city/http_city.dart';
+import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
 import 'package:flutter_application_1/pages/menupages/search/map/map_search.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:google_maps_webservice/places.dart';
 
 class ArgumentSetting {
   SvgPicture icon;
@@ -17,8 +19,7 @@ class MapPage {
   String longitude;
   String latitude;
   String city;
-  int cityId;
-  MapPage(this.longitude, this.latitude, this.city,this.cityId);
+  MapPage(this.longitude, this.latitude, this.city);
 }
 
 class SearchFrom extends StatefulWidget {
@@ -32,20 +33,34 @@ class SearchFrom extends StatefulWidget {
 }
 
 class _SearchFromState extends State<SearchFrom> {
+  int _availableCityIndex=-1;
+  void goToMap(BuildContext context,String placeId,String description,int index)async {
 
-  void goToMap(BuildContext context, String longitude, String latitude, String city,int cityId) {
-    MapPage params = MapPage(longitude, latitude, city,cityId);
+    setState(() {
+      _availableCityIndex=index;
+    });
+    PlacesDetailsResponse details = await places.getDetailsByPlaceId(placeId);
+    if(details.errorMessage!=""){
+      setState(() {
+      _availableCityIndex=-1;
+    });
+    }
+    MapPage params = MapPage(details.result.geometry!.location.lng.toString(), details.result.geometry!.location.lat.toString(), description,);
+    
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => MapSearch(update: widget.update),
+        builder: (context) => MapSearch(update: widget.update,placeId:placeId),
         settings: RouteSettings(arguments: params),
       ),
     );
+    setState(() {
+      _availableCityIndex=-1;
+    });
   }
 
-
-  List<CityModel> cityList = [];
+  final places = GoogleMapsPlaces(apiKey: 'AIzaSyDQ2a3xgarJk8qlNGzNCLzrH3H_XmGSUaY');
+  List<Prediction> _cityList=[];
   FocusNode textFocus = FocusNode();
   TextEditingController localController = TextEditingController();
   bool focus = false;
@@ -72,7 +87,6 @@ class _SearchFromState extends State<SearchFrom> {
   @override
   void dispose() {
     localController.dispose();
-    cityList=[];
     super.dispose();
   }
 
@@ -85,14 +99,22 @@ class _SearchFromState extends State<SearchFrom> {
 
     void onTextChanged(String text) async{
         if (text.isNotEmpty) {
-          List<CityModel>? newCity = await HttpCity().getCity(text);
-          setState(() {
-            cityList = newCity!;
-          });
-          newCity=null;
+          PlacesAutocompleteResponse response = await places.autocomplete(
+    text,
+    language: "us", // Опционально, язык результатов,
+    types: ["postal_code","sublocality","administrative_area_level_3","locality","street_address"],
+    components: [Component(Component.country, "us")], // Опционально, ограничение результатов по стране
+  );
+  print(response.predictions);
+    setState(() {
+      _cityList=response.predictions;
+    });
+          
+          
+          
         } else {
           setState(() {
-            cityList = [];
+            _cityList = [];
           });
         }
         
@@ -110,33 +132,9 @@ class _SearchFromState extends State<SearchFrom> {
         ),
         body: Column(
           children: [
-        Stack(
-          alignment: Alignment.centerLeft,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(left: 24),
-              child: InkWell(
-                onTap: () {
-                  Navigator.pop(context);
-                },
-                child: SvgPicture.asset("assets/svg/back.svg"),
-              ),
-            ),
-            Container(
-              height: 24,
-              alignment: Alignment.center,
-              child: const Text(
-                "Road from",
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    fontFamily: "Inter"),
-              ),
-            ),
-          ],
-        ),
+        BarNavigation(back: true, title: "Road ${arguments.hint}"),
         Padding(
-          padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
+          padding: const EdgeInsets.only(left: 15, right: 15),
           child: Column(
             children: [
               Container(
@@ -192,17 +190,23 @@ class _SearchFromState extends State<SearchFrom> {
                           child: SizedBox(
                               height: 215,
                               child: ListView.builder(
-                                itemCount: cityList.length,
+                                itemCount: _cityList.length,
+                                
                                 itemBuilder: (context, index) {
+                                  List<String> _description= _cityList[index].description!.split(",");
+
                                   return InkWell(
                                     onTap: () {
-                                      goToMap(
-                                          context,
-                                          cityList[index].longitude,
-                                          cityList[index].latitude,
-                                          cityList[index].city,
-                                          cityList[index].cityId
+                                      if(_availableCityIndex==-1){
+                                        goToMap(
+                                          context,      
+                                          _cityList[index].placeId!,
+                                          _cityList[index].description!,
+                                          index
                                           );
+                                      }
+                                      
+                                          
                                     },
                                     child: SizedBox(
                                         height: 43,
@@ -219,7 +223,7 @@ class _SearchFromState extends State<SearchFrom> {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(
-                                                  cityList[index].city,
+                                                  _description[0],
                                                   style: const TextStyle(
                                                       fontFamily: "Inter",
                                                       fontSize: 16,
@@ -229,7 +233,7 @@ class _SearchFromState extends State<SearchFrom> {
                                                           51, 51, 51, 1)),
                                                 ),
                                                 Text(
-                                                  "USA, ${cityList[index].state}",
+                                                  "${_description[2]}, ${_description[1]}",
                                                   style: const TextStyle(
                                                       fontFamily: "Inter",
                                                       fontSize: 12,
@@ -247,7 +251,17 @@ class _SearchFromState extends State<SearchFrom> {
                                               padding:
                                                   const EdgeInsets.only(
                                                       right: 4),
-                                              child: SvgPicture.asset(
+                                              child:_availableCityIndex==index
+                                              ? SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: CircularProgressIndicator(
+                                                  strokeWidth: 2,
+                                                  color: Colors.green,
+                                                  
+                                                ),
+                                              ) 
+                                              :SvgPicture.asset(
                                                   "assets/svg/upToMap.svg"),
                                             )
                                           ],

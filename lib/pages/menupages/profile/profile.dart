@@ -1,9 +1,9 @@
 
-
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_application_1/pages/menupages/profile/Paragraf/paragraf.dart';
 import 'package:flutter_application_1/pages/menupages/profile/Punkt/punkt.dart';
+import 'package:flutter_application_1/localStorage/tokenStorage/token_storage.dart';
 import 'package:share/share.dart';
 
 
@@ -15,20 +15,24 @@ import 'package:share/share.dart';
 //required data
 List list=[
   const Paragraf(paragraf: "Настройки аккаунта"),
-  Punkt(punkt: "личн дан",onTap: (){},),
-  Punkt(punkt: "уведомл",onTap: (){}),
-  Punkt(punkt: "парол",onTap: (){}),
+  Punkt(punkt: "личн дан",onTap: (context){},),
+  Punkt(punkt: "уведомл",onTap: (context){}),
+  Punkt(punkt: "парол",onTap: (context){}),
   const Paragraf(paragraf: "Помощь"),
-  Punkt(punkt: "FAQ",onTap: (){}),
-  Punkt(punkt: "связаться с нами",onTap: (){}),
+  Punkt(punkt: "FAQ",onTap: (context){}),
+  Punkt(punkt: "связаться с нами",onTap: (context){}),
   const Paragraf(paragraf: "Дополнительно"),
-  Punkt(punkt: "как стать лучше",onTap: (){}),
-  Punkt(punkt: "польз соглаш",onTap: (){}),
-  Punkt(punkt: "полит конфед",onTap: (){}),
-  Punkt(punkt: "усл использ",onTap: (){}),
+  Punkt(punkt: "как стать лучше",onTap: (context){}),
+  Punkt(punkt: "польз соглаш",onTap: (context){}),
+  Punkt(punkt: "полит конфед",onTap: (context){}),
+  Punkt(punkt: "усл использ",onTap: (context){}),
   const Punkt(punkt: "пригл друзей",onTap: share),
-  Punkt(punkt: "оцен прилож",onTap: (){}),
-  const Paragraf(paragraf: "Exit")
+  Punkt(punkt: "оцен прилож",onTap: (context){}),
+ Paragraf(paragraf: "Exit",onTap: (context){
+   TokenStorage().clearSharedPreferences().then((_){
+    Navigator.pushNamedAndRemoveUntil(context,"/reg",(route)=>false);
+   });
+ },)
   
 
 ];

@@ -4,12 +4,15 @@ import 'package:flutter/services.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
 import 'package:flutter_application_1/http/orders/orders.dart';
 import 'package:flutter_application_1/http/user/http_user_car.dart';
+import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
 import 'package:flutter_application_1/pages/menupages/provider/store.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class Price extends StatefulWidget{
-  const Price({super.key});
+  final Function side;
+  final int carId;
+  const Price({required this.side, required this.carId, super.key});
 
   @override
   State<Price> createState() => _PriceState();
@@ -19,7 +22,18 @@ class _PriceState extends State<Price> {
 
   TextEditingController priceController= TextEditingController();
 
-  void createCar()async{
+
+  void handleOrder()async{
+    if(storeApp.createAuto){
+      int carId=await createCar();
+      createOrder(carId);
+    }else{
+      createOrder(widget.carId);
+    }
+  }
+
+
+  Future<int> createCar()async{
 
     ClientCar clientCar=ClientCar(
       modelId: storeApp.car.model.id,
@@ -34,36 +48,44 @@ class _PriceState extends State<Price> {
         animals: storeApp.dopInfo.animal
         )
     );
-    print("go");
-    HttpUserCar().createUserCar(clientCar)
-    .then(
-      (carId){
+   int carId=await HttpUserCar().createUserCar(clientCar);
+   return carId;
+  }
 
-        RideInfo rideInfo=RideInfo(
-          price: double.parse(storeApp.price), 
-          numberOfSeats: storeApp.dopInfo.countPassanger
-        );
-        Preferences preferences=Preferences(
+
+
+  void createOrder(int carId){
+    Preferences preferences=Preferences(
           smoking: storeApp.dopInfo.smoking, 
           luggage: storeApp.dopInfo.baggage, 
           childCarSeat: storeApp.dopInfo.childPassanger, 
           animals: storeApp.dopInfo.animal
         );
+      RideInfo rideInfo=RideInfo(
+          price: double.parse(storeApp.price), 
+          numberOfSeats: storeApp.dopInfo.countPassanger,
+          preferences: preferences
+        );
+        
+        print(storeApp.dopInfo.smoking);
+        print(storeApp.dopInfo.animal);
         List<Location> locations=[
           Location(
-            cityId: storeApp.from.cityId, 
+            city: storeApp.from.city,
+            state: storeApp.from.state, 
             sortId: 1, 
             pickUp: true, 
-            location: storeApp.from.city, 
+            location: storeApp.from.fullAdress, 
             longitude: storeApp.from.longitude, 
             latitude: storeApp.from.latitude, 
             departureTime: storeApp.date.toUtc().millisecondsSinceEpoch ~/ 1000
             ),
             Location(
-            cityId: storeApp.to.cityId, 
+            city: storeApp.to.city, 
+            state: storeApp.to.state, 
             sortId: 2, 
             pickUp: false, 
-            location: storeApp.to.city, 
+            location: storeApp.to.fullAdress, 
             longitude: storeApp.to.longitude, 
             latitude: storeApp.to.latitude, 
             departureTime: -1
@@ -71,19 +93,19 @@ class _PriceState extends State<Price> {
         ];
         UserOrder userOrder=UserOrder(
           clientAutoId: carId,
-          rideInfo: rideInfo, 
-          preferences: preferences, 
+          rideInfo: rideInfo,  
           locations: locations
         );
         HttpUserOrder().createUserOrder(userOrder)
         .then((_){
             Navigator.of(context)
-                  .popUntil((route) => route.settings.name == '/menu');
-        });
+                  .popUntil((route) => route.settings.name == '/menu'); 
+            widget.side();
+                    });
       }
-      );
-    
-  }
+      
+
+
 
   @override
   void dispose() {
@@ -104,246 +126,250 @@ class _PriceState extends State<Price> {
         elevation: 1,
       ),
       body: Padding(
-        padding: const EdgeInsets.only(left: 15,right: 15),
-        child: Column(
-          children: [
-            Container(
-              color: Colors.white,
-              child: Stack(
-              alignment: Alignment.centerLeft,
-              children: [
+        padding: const EdgeInsets.only(left: 0,right: 0),
+        child: Padding(
+          padding: EdgeInsets.only(left: 15,right: 15),
+          child: Stack(
+            children: [
+              Column(
+                children: [
+                  BarNavigation(back: true, title: "Стоимость"),
                 Padding(
-                  padding: const EdgeInsets.only(left: 9),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-
-
-                    },
-                    child: SvgPicture.asset(
-                    "assets/svg/back.svg",
-                    height: 12,
-                    width: 6,
-                                  ),
-                  ),
+                  padding: const EdgeInsets.only(bottom: 32),
+                  child: Image.asset("assets/image/price_create.png")
                 ),
-                const Align(
-                alignment: Alignment.center,
-                child: Text(
-                  "Стоимость",
-                  style: TextStyle(
-                    fontFamily: "Poppins",
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: Color.fromRGBO(51, 51, 51, 1),
+                Container(
+                  height: 74,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: const Color.fromRGBO(58,121,215,1)),
+                    borderRadius: BorderRadius.circular(10)
                   ),
-                ),
-              ),
-        ],
-      ),
-      ),
-          Padding(
-            padding: const EdgeInsets.only(top: 40,bottom: 24),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              width: double.infinity,
-                  decoration: const BoxDecoration(
-            border: Border.symmetric(
-              horizontal: BorderSide(
-                color: Color.fromRGBO(233,235,238, 1),
-                width: 1,
-                style: BorderStyle.solid
-              )
-              )
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Row(
                         children: [
                           Padding(
-                            padding: const EdgeInsets.only(left: 5,right: 13),
-                            child: SvgPicture.asset(
-                                                  "assets/svg/geo.svg",
-                                                  height: 20,
-                                                  width: 14,
-                                                ),
-                          ), 
-                          Observer(
-                            builder: (context) {
-                              return Text(
-                            storeApp.from.city,
-                            style: currentTextStyle,
-                            );
-                            },
-                             
-                          )                                  
-                        ],
-                      ),
-                      // Иконка 1// Промежуток между иконками
-                      Padding(
-                        padding: const EdgeInsets.only(left: 13),
-                        child: SizedBox(
-                            width: 1, // Ширина линии
-                            height: 25, // Высота линии
-                            child: CustomPaint(
-                              painter: DashedLinePainter(), // Класс, реализующий отрисовку пунктирной линии
+                            padding: const EdgeInsets.only(left: 12,right: 16),
+                            child: Container(
+                              height: 50,
+                              width: 50,
+                              decoration: BoxDecoration(
+                                color: categorySelected,
+                                borderRadius: BorderRadius.circular(25)
+                              ),
+                                child: SvgPicture.asset(
+                                  "assets/svg/money.svg",
+                                  fit: BoxFit.scaleDown,
+                                ),
                             ),
                           ),
-                      ),// Промежуток между иконками
-                      Row(
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 5,right: 13),
-                            child: SvgPicture.asset(
-                                                  "assets/svg/geo.svg",
-                                                  height: 20,
-                                                  width: 14,
-                                                ),
-                          ), 
-                      Observer(
-                            builder: (context) {
-                              return Text(
-                            storeApp.to.city,
-                            style: currentTextStyle,
-                            );
-                            },
-                             
-                          )  
+                          const Text(
+                            "Наличка"
+                          )
                         ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.only(top: 28),
-                        child: Container(
-                          alignment: Alignment.center,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: categorySelected,
-                            borderRadius: BorderRadius.circular(10)
                       
-                          ),
-                          child: TextField(
-                            controller: priceController,
-                            decoration: const InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Укажите сумму поездки",
-                              contentPadding: EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 20.0),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 17),
+                        child: Container(
+                            height: 18,
+                            width: 18,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: const Color.fromRGBO(58,121,215,1),
+                              borderRadius: BorderRadius.circular(9)
                             ),
-                            
-                            keyboardType: TextInputType.number,
-                            inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                          ),
+                            child: Container(
+                                height: 8,
+                                width: 8,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4)
+                                ),
+                            ),
                         ),
                       )
                     ],
                   ),
-
-            ),
-          ),
-          Container(
-            height: 74,
-            decoration: BoxDecoration(
-              border: Border.all(color: const Color.fromRGBO(58,121,215,1)),
-              borderRadius: BorderRadius.circular(10)
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 12,right: 16),
-                      child: Container(
-                        height: 50,
-                        width: 50,
-                        decoration: BoxDecoration(
-                          color: categorySelected,
-                          borderRadius: BorderRadius.circular(25)
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 9.33),
+                        child: SvgPicture.asset(
+                          "assets/svg/information.svg"
                         ),
-                          child: SvgPicture.asset(
-                            "assets/svg/money.svg",
-                            fit: BoxFit.scaleDown,
-                          ),
                       ),
-                    ),
-                    const Text(
-                      "Наличка"
-                    )
-                  ],
-                ),
-                
-                Padding(
-                  padding: const EdgeInsets.only(right: 17),
-                  child: Container(
-                      height: 18,
-                      width: 18,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: const Color.fromRGBO(58,121,215,1),
-                        borderRadius: BorderRadius.circular(9)
-                      ),
-                      child: Container(
-                          height: 8,
-                          width: 8,
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(4)
-                          ),
-                      ),
-                  ),
-                )
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(right: 9.33),
-                  child: SvgPicture.asset(
-                    "assets/svg/information.svg"
+                      const Expanded(
+                        child: Text(
+                          "Оплата только наличными после завершения поездки",
+                          softWrap: true,
+                        ),
+                      )
+                    ],
                   ),
                 ),
-                const Expanded(
-                  child: Text(
-                    "Оплата только наличными после завершения поездки",
-                    softWrap: true,
-                  ),
-                )
-              ],
-            ),
-          ),
-           Padding(
-              padding: const EdgeInsets.only(top:26),
-              child: InkWell(
-                onTap: (){
-                  String price= priceController.text;
-                  storeApp.setPrice(price);
-                  createCar();
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  width: double.infinity,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color:const Color.fromRGBO(64,123,255,1),
-                    borderRadius: BorderRadius.circular(10)
-                    
-                  ),
-                  child: const Text(
-                    "Продолжить",
-                    style: TextStyle(
-                      color: Color.fromRGBO(255,255,255,1),
-                      fontFamily: "Inter",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600
-                    ),
-                  ),
-                ),
+                 Padding(
+                              padding: const EdgeInsets.only(top: 24),
+                              child: Container(
+                                alignment: Alignment.center,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                  color: categorySelected,
+                                  borderRadius: BorderRadius.circular(10)
+                            
+                                ),
+                                child: TextField(
+                                  controller: priceController,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: "Укажите сумму поездки",
+                                    contentPadding: EdgeInsets.fromLTRB(15.0, 20.0, 15.0, 20.0),
+                                  ),
+                                  
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 8,),
+                            Row(
+                              children: [
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      priceController.text="20";
+                                    });
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    width: 56,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(32),
+                                      border: Border.all(
+                                        color: Color.fromRGBO(173, 179, 188, 1),
+                                        width: 1,
+                                        style: BorderStyle.solid
+                                      )
+                                    ),
+                                    child: Text(
+                                      "20\$",
+                                      style: TextStyle(
+                                        color: Color.fromRGBO(85, 85, 85, 1),
+                                        fontFamily: "SF",
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                 Padding(
+                                   padding: const EdgeInsets.symmetric(horizontal: 4),
+                                   child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        priceController.text="40";
+                                      });
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      width: 56,
+                                      height: 32,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(32),
+                                        border: Border.all(
+                                          color: Color.fromRGBO(173, 179, 188, 1),
+                                          width: 1,
+                                          style: BorderStyle.solid
+                                        )
+                                      ),
+                                      child: Text(
+                                        "40\$",
+                                        style: TextStyle(
+                                          color: Color.fromRGBO(85, 85, 85, 1),
+                                          fontFamily: "SF",
+                                          fontWeight: FontWeight.w500,
+                                          fontSize: 12
+                                        ),
+                                      ),
+                                    ),
+                                                               ),
+                                 ),
+                                 InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      priceController.text="60";
+                                    });
+                                  },
+                                  child: Container(
+                                    alignment: Alignment.center,
+                                    width: 56,
+                                    height: 32,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(32),
+                                      border: Border.all(
+                                        color: Color.fromRGBO(173, 179, 188, 1),
+                                        width: 1,
+                                        style: BorderStyle.solid
+                                      )
+                                    ),
+                                    child: Text(
+                                      "60\$",
+                                      style: TextStyle(
+                                        color: Color.fromRGBO(85, 85, 85, 1),
+                                        fontFamily: "SF",
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 12
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                
+                              ],
+                            )
+               
+                ],
               ),
-            )
-          ],
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Padding(
+                      padding: const EdgeInsets.only(bottom:96),
+                      child: InkWell(
+                        onTap: (){
+                          String price= priceController.text;
+                          storeApp.setPrice(price);
+                          handleOrder();
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          width: double.infinity,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color:const Color.fromRGBO(64,123,255,1),
+                            borderRadius: BorderRadius.circular(10)
+                            
+                          ),
+                          child: const Text(
+                            "Создать поездку",
+                            style: TextStyle(
+                              color: Color.fromRGBO(255,255,255,1),
+                              fontFamily: "Inter",
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                )
+            ],
+          ),
         ),
       ),
     );

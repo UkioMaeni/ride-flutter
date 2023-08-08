@@ -30,6 +30,12 @@ class _CreateTab extends State<CreateTab> {
     });
   }
 
+  void updateData(){
+    setState(() {
+      
+    });
+  }
+
   DateTime time=DateTime.now();
   void updateTime(DateTime newTime){
     setState(() {
@@ -59,13 +65,16 @@ void _showDialogPage(BuildContext context){
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => const Auto()),
+      builder: (context) => Auto(
+        side:updateData
+      )),
       
       );
 }
   @override
   void initState() {
-    HttpUserOrder().getUserOrders();
+    storeApp.setDefaultValue();
+
     super.initState();
   }
   @override
@@ -76,7 +85,7 @@ void _showDialogPage(BuildContext context){
   Widget build(BuildContext context) {
 
       
-    
+   
 
     return  FutureBuilder<List<DriverOrder>>(
       future: HttpUserOrder().getUserOrders(),
@@ -94,7 +103,7 @@ void _showDialogPage(BuildContext context){
         List<DriverOrder>? driverOrder=  snapshot.data;
         print(driverOrder);
           if(driverOrder!.isEmpty){
-            return  CreateTitle(back: false,);
+            return  CreateTitle(side: updateData, back: false,);
           }
           return Column(
             children: [
@@ -110,6 +119,7 @@ void _showDialogPage(BuildContext context){
                   padding: const EdgeInsets.only(left: 15,right: 15,bottom: 30),
                   child: InkWell(
                   onTap: (){
+                     storeApp.setDefaultValue();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
@@ -124,7 +134,7 @@ void _showDialogPage(BuildContext context){
                                 elevation: 1,
                                 
                             ), 
-                              body: CreateTitle(back: true,),
+                              body: CreateTitle(side: updateData, back: true,),
                               )
                             ),
                           )

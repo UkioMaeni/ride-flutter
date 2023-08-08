@@ -27,7 +27,7 @@ class _CardCarState extends State<CardCar> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 12),
+      padding: const EdgeInsets.only(bottom: 12),
       child: InkWell(
         onTap:(){
           if(widget.other.name.isNotEmpty){

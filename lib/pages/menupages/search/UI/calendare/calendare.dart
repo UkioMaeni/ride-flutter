@@ -23,7 +23,7 @@ class _CalendareState extends State<Calendare> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context){
-        return CalendarModal(update:widget.updateDate);
+        return CalendarModal(update:widget.updateDate,date:widget.date);
       },
       );
       

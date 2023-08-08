@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-const baseUrl="http://31.184.254.86:9099/api/v1/sign-up";
+const baseUrl="http://31.184.254.86:9099/api/v1/sign";
 const baseUrlOtp="http://31.184.254.86:9099/api/v1/otp";
 class HttpReg{
   Future<Map<String,dynamic>> otpVerify(int code, String phone) async{
@@ -27,11 +27,14 @@ class HttpReg{
       data:  {
         "code":code,
         "phone": phone,
-        "step": "sign-up"
+        "step": "sign"
       }
       );
+      print("otpVerif");
+      print(response.data["data"]);
       return response.data["data"];
     }catch(e){
+      print(e);
         return {};
     }
   }
@@ -45,7 +48,7 @@ class HttpReg{
      ));
      dio.interceptors.add(InterceptorsWrapper(
         onError: (DioException error, ErrorInterceptorHandler handler) {
-    // 
+        print(error);
         int statusCode = error.response?.statusCode ?? -1;
         if(statusCode==400){
 
@@ -55,13 +58,14 @@ class HttpReg{
   },
 ));
     try{
-
+      print(phone);
       response = await dio.post(
       baseUrl,
       data:  {
         "phone":phone
       }
       );
+      print(response.data);
       return response.data["data"];
     }catch(e){
         return {};

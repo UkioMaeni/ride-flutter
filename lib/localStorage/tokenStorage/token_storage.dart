@@ -23,5 +23,10 @@ setToken(String accessToken, String refreshToken) async{
   prefs.setString("refresh", refreshToken);
   return 1;
 }
+Future<void> clearSharedPreferences() async {
+  SharedPreferences preferences = await SharedPreferences.getInstance();
+  await preferences.clear();
+  
+}
 
 }

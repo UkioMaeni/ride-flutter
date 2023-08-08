@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../../helpers/input_number_formetter.dart';
 
@@ -71,7 +72,7 @@ class _OneSceneState extends State<OneScene>{
                           padding: const EdgeInsets.only(left: 15),
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(2.0),
-                            child: Image.asset("assets/image/flagUSA.png",)
+                            child: Image.asset("assets/image/flagUsa@3x.png",)
                           ),
                         ),
                         const Padding(

@@ -1,5 +1,7 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/http/chats/http_chats.dart';
+import 'package:flutter_application_1/pages/menupages/message/empty_state_message.dart';
 import 'package:flutter_application_1/pages/menupages/message/mess/mess.dart';
 
 class Messages extends StatefulWidget{
@@ -11,12 +13,6 @@ class Messages extends StatefulWidget{
 }
 
 class _MessagesState extends State<Messages> {
-
-
-
-List<Map<dynamic, dynamic>> mess =[
-  { "img":'https://i.pinimg.com/originals/8a/de/fe/8adefe5af862b4f9cec286c6ee4722cb.jpg',}
-];
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +33,30 @@ List<Map<dynamic, dynamic>> mess =[
                 ),
             ),
            Expanded(
-             child: ListView.builder(
-              itemCount: mess.length,
+             child: FutureBuilder<List<UserChats>>(
+              future: HttpChats().getUserChats(),
+              builder: (context, snapshot) {
+                if(snapshot.connectionState==ConnectionState.waiting){
+                  return Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
+                if(snapshot.hasError){
+                  return Center(child: Text("ошибка"));
+                
+                }
+                List<UserChats>? httpChats=snapshot.data;
+                if(httpChats!.isEmpty){
+                    return MessagesEmptyState();
+                }
+                return ListView.builder(
+              itemCount: httpChats!.length,
               itemBuilder: (context,index){
-                return Mess(child: mess[index],);
+                return Mess(
+                    chat:httpChats![index]
+                );
+              },
+              );
               },
               )
            )
@@ -49,3 +65,5 @@ List<Map<dynamic, dynamic>> mess =[
     );
   }
 }
+
+ 

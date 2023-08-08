@@ -8,8 +8,23 @@ part of 'store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic, no_leading_underscores_for_local_identifiers
 
-mixin _$Controller on ControllerBase, Store {
-  late final _$fromAtom = Atom(name: '_ControllerBase.from', context: context);
+mixin _$StoreController on ControllerBase, Store {
+  late final _$dateAtom = Atom(name: 'ControllerBase.date', context: context);
+
+  @override
+  DateTime get date {
+    _$dateAtom.reportRead();
+    return super.date;
+  }
+
+  @override
+  set date(DateTime value) {
+    _$dateAtom.reportWrite(value, super.date, () {
+      super.date = value;
+    });
+  }
+
+  late final _$fromAtom = Atom(name: 'ControllerBase.from', context: context);
 
   @override
   DataCreate get from {
@@ -24,7 +39,7 @@ mixin _$Controller on ControllerBase, Store {
     });
   }
 
-  late final _$toAtom = Atom(name: '_ControllerBase.to', context: context);
+  late final _$toAtom = Atom(name: 'ControllerBase.to', context: context);
 
   @override
   DataCreate get to {
@@ -39,8 +54,7 @@ mixin _$Controller on ControllerBase, Store {
     });
   }
 
-  late final _$priceAtom =
-      Atom(name: '_ControllerBase.price', context: context);
+  late final _$priceAtom = Atom(name: 'ControllerBase.price', context: context);
 
   @override
   String get price {
@@ -55,7 +69,7 @@ mixin _$Controller on ControllerBase, Store {
     });
   }
 
-  late final _$carAtom = Atom(name: '_ControllerBase.car', context: context);
+  late final _$carAtom = Atom(name: 'ControllerBase.car', context: context);
 
   @override
   CarData get car {
@@ -71,7 +85,7 @@ mixin _$Controller on ControllerBase, Store {
   }
 
   late final _$dopInfoAtom =
-      Atom(name: '_ControllerBase.dopInfo', context: context);
+      Atom(name: 'ControllerBase.dopInfo', context: context);
 
   @override
   DopInfo get dopInfo {
@@ -86,72 +100,112 @@ mixin _$Controller on ControllerBase, Store {
     });
   }
 
-  late final _$_ControllerBaseActionController =
-      ActionController(name: '_ControllerBase', context: context);
+  late final _$createAutoAtom =
+      Atom(name: 'ControllerBase.createAuto', context: context);
 
   @override
-  void setFrom(DataCreate from) {
-    final _$actionInfo = _$_ControllerBaseActionController.startAction(
-        name: '_ControllerBase.setFrom');
+  bool get createAuto {
+    _$createAutoAtom.reportRead();
+    return super.createAuto;
+  }
+
+  @override
+  set createAuto(bool value) {
+    _$createAutoAtom.reportWrite(value, super.createAuto, () {
+      super.createAuto = value;
+    });
+  }
+
+  late final _$ControllerBaseActionController =
+      ActionController(name: 'ControllerBase', context: context);
+
+  @override
+  void setDate(DateTime date_) {
+    final _$actionInfo = _$ControllerBaseActionController.startAction(
+        name: 'ControllerBase.setDate');
     try {
-      return super.setFrom(from);
+      return super.setDate(date_);
     } finally {
-      _$_ControllerBaseActionController.endAction(_$actionInfo);
+      _$ControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setFrom(DataCreate from_) {
+    final _$actionInfo = _$ControllerBaseActionController.startAction(
+        name: 'ControllerBase.setFrom');
+    try {
+      return super.setFrom(from_);
+    } finally {
+      _$ControllerBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setTo(DataCreate to_) {
-    final _$actionInfo = _$_ControllerBaseActionController.startAction(
-        name: '_ControllerBase.setTo');
+    final _$actionInfo = _$ControllerBaseActionController.startAction(
+        name: 'ControllerBase.setTo');
     try {
       return super.setTo(to_);
     } finally {
-      _$_ControllerBaseActionController.endAction(_$actionInfo);
+      _$ControllerBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setPrice(String price_) {
-    final _$actionInfo = _$_ControllerBaseActionController.startAction(
-        name: '_ControllerBase.setPrice');
+    final _$actionInfo = _$ControllerBaseActionController.startAction(
+        name: 'ControllerBase.setPrice');
     try {
       return super.setPrice(price_);
     } finally {
-      _$_ControllerBaseActionController.endAction(_$actionInfo);
+      _$ControllerBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setCar(CarData car_) {
-    final _$actionInfo = _$_ControllerBaseActionController.startAction(
-        name: '_ControllerBase.setCar');
+    final _$actionInfo = _$ControllerBaseActionController.startAction(
+        name: 'ControllerBase.setCar');
     try {
       return super.setCar(car_);
     } finally {
-      _$_ControllerBaseActionController.endAction(_$actionInfo);
+      _$ControllerBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   void setDopInfo(DopInfo dopInfo_) {
-    final _$actionInfo = _$_ControllerBaseActionController.startAction(
-        name: '_ControllerBase.setDopInfo');
+    final _$actionInfo = _$ControllerBaseActionController.startAction(
+        name: 'ControllerBase.setDopInfo');
     try {
       return super.setDopInfo(dopInfo_);
     } finally {
-      _$_ControllerBaseActionController.endAction(_$actionInfo);
+      _$ControllerBaseActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
+  void setCreatAuto(bool newValue) {
+    final _$actionInfo = _$ControllerBaseActionController.startAction(
+        name: 'ControllerBase.setCreatAuto');
+    try {
+      return super.setCreatAuto(newValue);
+    } finally {
+      _$ControllerBaseActionController.endAction(_$actionInfo);
     }
   }
 
   @override
   String toString() {
     return '''
+date: ${date},
 from: ${from},
 to: ${to},
 price: ${price},
 car: ${car},
-dopInfo: ${dopInfo}
+dopInfo: ${dopInfo},
+createAuto: ${createAuto}
     ''';
   }
 }

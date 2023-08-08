@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
 import 'package:flutter_application_1/http/user/http_user_car.dart';
+import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
 import 'package:flutter_application_1/pages/menupages/create/auto/auto_title.dart';
 import 'package:flutter_application_1/pages/menupages/create/dop_options/dop_options.dart';
+import 'package:flutter_application_1/pages/menupages/provider/store.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 
@@ -13,7 +15,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 
 
 class Auto extends StatefulWidget{
-  const Auto({super.key});
+  final Function side;
+  const Auto({required this.side, super.key});
 
   @override
   State<Auto> createState() => _AutoState();
@@ -21,6 +24,12 @@ class Auto extends StatefulWidget{
 
 class _AutoState extends State<Auto> {
 
+
+  @override
+  void initState() {
+   storeApp.setCreatAuto(true);
+    super.initState();
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,59 +57,28 @@ class _AutoState extends State<Auto> {
         List<UserCar>? userCar=  snapshot.data;
         print(userCar);
           if(userCar!.isEmpty){
-            return  AutoTitle();
+            return  AutoTitle(
+              side:widget.side
+            );
           }
           return Column(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 40,top:20),
-                child: Stack(
-                      alignment: Alignment.centerLeft,
-                      children: [
-                          Padding(
-                            padding: const EdgeInsets.only(left: 24),
-                            child: InkWell(
-                              onTap: () {
-                                Navigator.pop(context);
-                              },
-                              child: SvgPicture.asset(
-                              "assets/svg/back.svg",
-                              height: 12,
-                              width: 6,
-                                  ),
-                            ),
-                          ),
-                          const Align(
-                          alignment: Alignment.center,
-                          child: Text(
-                            "Какой авто",
-                            style: TextStyle(
-                              fontFamily: "Poppins",
-                              fontSize: 20,
-                              fontWeight: FontWeight.w600,
-                              color: Color.fromRGBO(51, 51, 51, 1),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-              ),
+              BarNavigation(back: true, title: "Какой авто"),
               Expanded(
                 child: ListView.builder(
                     itemCount: userCar.length,
                     itemBuilder: (context, index) {
                       return InkWell(
                                 onTap:(){
+                                  storeApp.setCreatAuto(false);
                                   Navigator.push(
                                     context, 
                                     MaterialPageRoute(
                                       builder: (context) => DopOptions(
-                                        // userCar[index].numberOfSeats, 
-                                        // userCar[index].preferences.luggage, 
-                                        // userCar[index].preferences.childCarSeat, 
-                                        // userCar[index].preferences.animals, 
-                                        // userCar[index].preferences.smoking, 
-                                        // ""
+                                        side: widget.side,
+                                        preferences:userCar[index].preferences,
+                                        count:userCar[index].numberOfSeats,
+                                        carId:userCar[index].carId
                                         ),
                                       ));
                                 },

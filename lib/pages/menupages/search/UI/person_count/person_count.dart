@@ -5,35 +5,24 @@ import 'package:flutter_application_1/pages/menupages/search/UI/person_count/mod
 import 'package:flutter_svg/svg.dart';
 
 class PersonCount extends StatefulWidget{
-  const PersonCount({super.key});
+  final int count;
+  final Function update;
+  const PersonCount({required this.count,required this.update, super.key});
   @override
   State<PersonCount> createState() => _PersonCountState();
 }
 
 class _PersonCountState extends State<PersonCount> {
 
-int count=1;
-void _increment(){
-  if(count<4){
-    setState(() {
-    count++;
-  });
-  }
-}
 
-void setCount(int newCount){
-  setState(() {
-    count=newCount;
-  });
-}
 
-void _decrement(){
-   if(count>1){
-    setState(() {
-    count--;
-  });
+@override
+  void initState() {
+    super.initState();
   }
-}
+
+
+
 
 
  void _showDialogPage(BuildContext context){
@@ -42,7 +31,7 @@ void _decrement(){
       context: context,
       backgroundColor: Colors.transparent,
       builder: (BuildContext context){
-        return ModalPersonCount(count:count,increment:_increment,decrement:_decrement,setter:setCount);
+        return ModalPersonCount(count:widget.count,setter:widget.update);
       },
       );
       
@@ -71,7 +60,7 @@ void _decrement(){
                   "assets/svg/person.svg"
                 ),
               ),
-              Text(count.toString())
+              Text(widget.count.toString())
             ]
             ),
         ),

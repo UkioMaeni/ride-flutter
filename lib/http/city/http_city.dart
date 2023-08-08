@@ -25,7 +25,7 @@ class HttpCity{
     List res=response.data["data"];
     List<CityModel> cityList=[];
     for (var element in res) {
-      cityList.add(CityModel(element["city_id"], element["state_id"], element["city"], element["state"], element["county"], element["longitude"], element["latitude"]));
+      //cityList.add(CityModel(element["city_id"], elementb["state_id"], element["city"], element["state"], element["county"], element["longitude"], element["latitude"]));
     }
     return cityList;
   }

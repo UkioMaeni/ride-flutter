@@ -1,102 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_application_1/http/chats/http_chats.dart';
+import 'package:flutter_application_1/pages/menupages/message/message_page.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:intl/intl.dart';
+import 'package:string_to_color/string_to_color.dart';
+class Mess extends StatefulWidget{
+ final UserChats chat;
+ const Mess({super.key, required this.chat});
 
-class Mess extends StatelessWidget{
- final Map child;
- const Mess({super.key, required this.child});
+  @override
+  State<Mess> createState() => _MessState();
+}
+
+class _MessState extends State<Mess> {
   @override
   Widget build(BuildContext context) {
 
-void showAnimation(BuildContext context, img) {
-  showDialog(
-    barrierColor: Colors.white,
-    useSafeArea: false,
-    context: context,
-    barrierDismissible: true,
-    builder: (BuildContext context) {
-      return Scaffold(
-        appBar: AppBar(
-            systemOverlayStyle: SystemUiOverlayStyle.dark,
-            toolbarHeight: 0,
-            backgroundColor: Colors.white,
-            toolbarOpacity: 0,
-            elevation: 1,
-            
-        ),
-        body: Column(
-          children: [
-            Container(
-              height: 55,
-              decoration: const BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: Color.fromRGBO(226,226,226, 1),
-                    width: 1
-                  )
-                )
-              ),
-              child: Row(
-                children:[
-                  Padding(
-                    padding: const EdgeInsets.only(left: 24,right: 25),
-                    child: InkWell(
-                      onTap: (){
-                        Navigator.pop(context);
-                      } ,
-                      child: SvgPicture.asset(
-                      "assets/svg/back.svg"
-                      ),
-                    ),
-                  ),
-                  ClipOval(
-                  child: Image.network(
-                    img,
-                    width: 42,
-                    height: 42,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.only(top: 9,bottom: 9,left: 12),
-                  child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Tom",
-                      style: TextStyle(
-                        fontFamily: "SF",
-                        fontWeight: FontWeight.w500,
-                        fontSize: 16
-                      ),
-                      ),
-                    Text(
-                      "Online",
-                      style: TextStyle(
-                        fontFamily: "SF",
-                        fontWeight: FontWeight.w400,
-                        fontSize: 14,
-                        color: Color.fromRGBO(58,121,215,1)
-                      ),
-                      )
-                  ],
-                              ),
-                ),
-                ]
-                
-              ),
-            )
-          ],
-          ),
-      );
-}
-);
-}
 
+  DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(widget.chat.createdAt * 1000);
+  String formattedTime = DateFormat('HH:mm').format(dateTime);
     return InkWell(
       onTapDown: (details) {
-        showAnimation(context,child["img"]);
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => MessagePage(chatId: widget.chat.chatId,userId: widget.chat.clientId),)
+          );
   },
       child: SizedBox(
         height: 61,
@@ -108,13 +37,21 @@ void showAnimation(BuildContext context, img) {
                 Stack(
                 alignment: Alignment.bottomRight,
               children: [
-                ClipOval(
-                  child: Image.network(
-                    child["img"],
-                    width: 45,
-                    height: 45,
-                    fit: BoxFit.cover,
+                Container(
+                  height: 45,
+                  width: 45,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: ColorUtils.stringToColor(widget.chat.clientName),
+                    borderRadius: BorderRadius.circular(45)
                   ),
+                  child: Text(
+                    widget.chat.clientName.isNotEmpty?widget.chat.clientName[0]:"A",
+                    style: TextStyle(
+                      fontSize: 25,
+                      
+                    ),
+                    ),
                 ),
                 Container(
                   width: 12,
@@ -130,14 +67,14 @@ void showAnimation(BuildContext context, img) {
                 ),
               ],
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(left: 12,top: 13.5,bottom: 13.5),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "Tom",
+                    "${widget.chat.clientName}   ${widget.chat.start}->${widget.chat.end}",
                     style: TextStyle(
                       fontFamily: "SF",
                       fontWeight: FontWeight.w500,
@@ -145,7 +82,7 @@ void showAnimation(BuildContext context, img) {
                     ),
                     ),
                   Text(
-                    "Dsdfdsfsdfsdfsd",
+                    widget.chat.message,
                     style: TextStyle(
                       fontFamily: "SF",
                       fontWeight: FontWeight.w400,
@@ -158,12 +95,12 @@ void showAnimation(BuildContext context, img) {
             )
               ],
             ),
-            const Padding(
+             Padding(
               padding: EdgeInsets.only(top:13.5),
               child: Column(
                 children: [
                   Text(
-                    "4:45 PM",
+                    formattedTime,
                     style: TextStyle(
                         fontFamily: "SF",
                         fontWeight: FontWeight.w400,
@@ -182,5 +119,4 @@ void showAnimation(BuildContext context, img) {
         ),
     );
   }
-  
 }

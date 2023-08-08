@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/http/cars/cars.dart';
+import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
 import 'package:flutter_application_1/pages/menupages/create/enumMap/enum_map.dart';
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -62,33 +63,7 @@ Map<MyEnum,dynamic> funcModel ={
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 24,bottom: 20,right: 24),
-          child: Stack(
-            alignment: Alignment.centerLeft,
-            children: [
-              SvgPicture.asset(
-                "assets/svg/back.svg",
-                width: 6,
-                height: 12,
-                ),
-              Container(
-                width: double.infinity,
-                alignment: Alignment.center,
-                child: Text(
-                  "Выбирите ${typeWindow[widget.types]}",
-                  style: const TextStyle(
-                    
-                    fontFamily: "Inter",
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color.fromRGBO(51,51,51,1)
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
+       BarNavigation(back: true, title: "выбирите марку"),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 15),
           child: Container(
