@@ -10,7 +10,8 @@ class CardCoordinates extends StatefulWidget{
  final String hint;
  final Function update;
  final String name;
- const CardCoordinates({required this.name, required this.update, required this.icon,required this.hint, super.key});
+ final bool valid;
+ const CardCoordinates({required this.valid, required this.name, required this.update, required this.icon,required this.hint, super.key});
 
   @override
   State<CardCoordinates> createState() => _CardCoordinatesState();
@@ -25,7 +26,7 @@ void _showAnimation(BuildContext context) {
   Navigator.push(
     context,
     MaterialPageRoute(
-      builder: (context) => SearchFrom(update: widget.update,),
+      builder: (context) => SearchFrom(update: widget.update,city:widget.name),
       
       settings: RouteSettings(arguments:params), 
     ),
@@ -48,7 +49,11 @@ void _showAnimation(BuildContext context) {
      child: Container(
               height: 60,
               decoration: BoxDecoration(
-                //color: Color.fromRGBO(247,247,253,1),
+                border:widget.valid?null: Border.all(
+                  color:  Colors.red,
+                  width: 1,
+                  style: BorderStyle.solid
+                ),
                 color: categorySelected,
                 borderRadius: BorderRadius.circular(10)
               ),

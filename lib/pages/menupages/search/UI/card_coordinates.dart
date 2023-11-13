@@ -1,9 +1,11 @@
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
+import 'package:flutter_application_1/pages/menupages/provider/user_store.dart';
 import 'package:flutter_application_1/pages/menupages/search/search_city_search/search_city_search.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-
+import 'package:flutter_platform_alert/flutter_platform_alert.dart';
 
 class CardCoordinates extends StatefulWidget{
   final bool valid;
@@ -21,7 +23,20 @@ class _CardCoordinatesState extends State<CardCoordinates> {
 
 
 
-void _showAnimation(BuildContext context) {
+Future<void> _showAnimation(BuildContext context) async {
+  if(!userStore.userInfo.auth){
+    await FlutterPlatformAlert.playAlertSound();
+final clickedButton = await FlutterPlatformAlert.showAlert(
+      windowTitle: 'No auth',
+      text: 'Register to use the functionality',
+      alertStyle: AlertButtonStyle.okCancel,
+      iconStyle: IconStyle.information,
+  );
+    if(clickedButton==AlertButton.okButton){
+       Navigator.pushNamedAndRemoveUntil(context,"/reg",(route)=>false);
+    }
+    return;
+  }
   ArgumentSetting params = ArgumentSetting(widget.icon,widget.hint);
   Navigator.push(
     context,
@@ -69,8 +84,8 @@ void _showAnimation(BuildContext context) {
                     widget.name.isNotEmpty?widget.name:widget.hint,
                     style: TextStyle(
                       color: brandBlack,
-                      fontSize: 13,
-                      fontFamily: "Poppins",
+                      fontSize: 14,
+                      fontFamily: "SF",
                       fontWeight: FontWeight.w500
                     ),
                     )

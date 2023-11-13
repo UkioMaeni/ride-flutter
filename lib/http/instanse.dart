@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
+import 'package:flutter_application_1/helpers/app_version.dart';
 import 'package:flutter_application_1/http/token/http_token.dart';
 import 'package:flutter_application_1/localStorage/tokenStorage/token_storage.dart';
 
@@ -19,22 +20,23 @@ class AuthInterceptor extends Interceptor {
 
   @override
   Future onError(DioException err, ErrorInterceptorHandler handler) async {
+    
     if(err.error==DioExceptionType.sendTimeout){
       return ErrorTypeTimeout();
     }
     print(err.response?.data);
     if (err.response?.statusCode == 401) {
-      // Получаем новый рефреш-токен
+     
       final newToken = await HttpToken().refreshToken();
       String access="";
       if(newToken=="auth"){
         access= await TokenStorage().getToken("access");
       }
 
-      // Обновляем рефреш-токен в заголовке запроса
+     
       dio.options.headers['Authorization'] = 'Bearer $access';
 
-      // Повторяем запрос с обновленным рефреш-токеном
+    
       final RequestOptions? options = err.response?.requestOptions;
       Response newResponse = await dio.request(
           options!.path, 
@@ -46,7 +48,7 @@ class AuthInterceptor extends Interceptor {
       return newResponse;
     }
     if (err.response?.statusCode == 400) {
-      // Получаем новый рефреш-токен
+   
         print(err.response?.data);
 
       handler.next(err);
@@ -58,11 +60,15 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    print(options.queryParameters);
-    print(options.data.toString());
-    print(options.baseUrl);
-    print(options.path);
-    print(options.queryParameters);
+    //print(options.queryParameters);
+    print(options.queryParameters.toString());
+    //print(options.baseUrl);
+   // print(options.path);
+   // print(options.queryParameters);
+   options.headers.addEntries({
+    MapEntry("version",appInfo.version)
+   });
+   //print("HV"+options.headers["version"]);
     handler.next(options);
   }
 }

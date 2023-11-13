@@ -23,6 +23,8 @@ class CreateTitle extends StatefulWidget{
 class _CreateTitle extends State<CreateTitle> {
 
   DateTime date=DateTime.now();
+  bool isFrom=true;
+    bool isTo=true;
 
   void updateDate(DateTime newDate){
     setState(() {
@@ -48,7 +50,21 @@ class _CreateTitle extends State<CreateTitle> {
 
 
 void _showDialogPage(BuildContext context){
-  DateTime validDate=DateTime(
+  print(storeApp.from.city);
+   if(storeApp.from.city.isEmpty){
+      print("f");
+      setState(() {
+        isFrom=false;
+      });
+    }
+    if(storeApp.to.city.isEmpty){
+      print("t");
+      setState(() {
+        isTo=false;
+      });
+    }
+    if(isTo&&isFrom){
+      DateTime validDate=DateTime(
     date.year,
     date.month,
     date.day,
@@ -62,6 +78,8 @@ void _showDialogPage(BuildContext context){
       builder: (context) =>  Auto(side: widget.side )),
       
       );
+    }
+  
 }
   @override
   void initState() {
@@ -75,13 +93,27 @@ void _showDialogPage(BuildContext context){
   @override
   Widget build(BuildContext context) {
 
-      
+       if(storeApp.from.city.isNotEmpty){
+      setState(() {
+        isFrom=true;
+      });
+    }
+    if(storeApp.to.city.isNotEmpty){
+      setState(() {
+        isTo=true;
+      });
+    }
     
-
+  double winWidth=MediaQuery.of(context).size.height;
+  double imageKF=0.5;
+  print(winWidth);
+  if(winWidth<700){
+    imageKF=0.3;
+  }
     return  Column(
             children: [
-              BarNavigation(back: widget.back, title: "Создать ЮЮ",),
-              Image.asset("assets/image/my_trips.png"),
+              BarNavigation(back: widget.back, title: "Create a ride to find a ridemate",),
+              Image.asset("assets/image/my_trips.png",width: winWidth*imageKF,),
                Expanded(
                  child: Padding(
                     padding: const EdgeInsets.only(top:12, left: 15,right: 15,),
@@ -95,6 +127,7 @@ void _showDialogPage(BuildContext context){
                               child: Observer(
                                 builder: (context) {
                                   return CardCoordinates(
+                                    valid:isFrom,
                                   hint: "from",
                                   name: storeApp.from.city,
                                   icon: SvgPicture.asset(
@@ -109,6 +142,7 @@ void _showDialogPage(BuildContext context){
                           Observer(
                             builder: (context) {
                               return CardCoordinates(
+                                valid:isTo,
                               hint: "to",
                               name: storeApp.to.city,
                               icon: SvgPicture.asset(
@@ -152,7 +186,7 @@ void _showDialogPage(BuildContext context){
                                 
                               ),
                               child: Text(
-                                "Продолжить",
+                                "Continue",
                                 style: TextStyle(
                                   color: storeApp.from.city!="from"&&storeApp.to.city!="to"?const Color.fromRGBO(255,255,255,1):const Color.fromRGBO(255,255,255,0.5),
                                   fontFamily: "Inter",

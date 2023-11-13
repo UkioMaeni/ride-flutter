@@ -44,7 +44,7 @@ class _CardsearchOrder extends State<CardsearchOrder> {
               color: Color.fromRGBO(0, 0, 0, 0.1),
               spreadRadius: 0,
               blurRadius: 50,
-              offset: Offset(0, 10), // смещение тени по горизонтали и вертикали
+              offset: Offset(0, 10), 
             ),
       ],
         ),
@@ -221,7 +221,7 @@ class _CardsearchOrder extends State<CardsearchOrder> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "свободные места",
+                    "Free places",
                     style: const TextStyle(
                           fontFamily: "SF",
                           fontSize: 12,

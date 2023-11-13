@@ -15,7 +15,7 @@ class MessagesEmptyState extends StatelessWidget{
           child: Container(
             alignment: Alignment.center,
             child: Text(
-              "Здесь появятся ваши\nбудущие чаты!",
+              "Your future chats will appear here!",
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontFamily: "SF",
@@ -29,7 +29,7 @@ class MessagesEmptyState extends StatelessWidget{
          Container(
           alignment: Alignment.center,
           child: Text(
-            "На этой странице вы найдете список ваших будущих чатов с водителем.",
+            "On this page you will find a list of your future chats with the driver.",
             textAlign: TextAlign.center,
             style: TextStyle(
               fontFamily: "SF",

@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 const baseUrl="http://31.184.254.86:9099/api/v1/sign";
 const baseUrlOtp="http://31.184.254.86:9099/api/v1/otp";
 class HttpReg{
-  Future<Map<String,dynamic>> otpVerify(int code, String phone) async{
+  Future<Map<String,dynamic>?> otpVerify(int code, String phone) async{
 
     Response response;
 
@@ -16,7 +16,7 @@ class HttpReg{
         if(statusCode==400){
 
         }
-    // `handler.resolve(response)` для продолжения выполнения запроса в случае обработки ошибки,`handler.next(error)` для передачи ошибки дальше
+   
         handler.next(error);
   },
 ));
@@ -35,7 +35,7 @@ class HttpReg{
       return response.data["data"];
     }catch(e){
       print(e);
-        return {};
+        return null;
     }
   }
 
@@ -53,7 +53,7 @@ class HttpReg{
         if(statusCode==400){
 
         }
-    // Вызовите `handler.resolve(response)` для продолжения выполнения запроса в случае обработки ошибки, или `handler.next(error)` для передачи ошибки дальше
+  
         handler.next(error);
   },
 ));

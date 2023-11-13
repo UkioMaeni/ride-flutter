@@ -6,7 +6,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 class Punkt extends StatelessWidget   {
  final String punkt;
  final Function onTap;
- const Punkt({super.key, required this.onTap, required this.punkt});
+ final bool? warning;
+ const Punkt({super.key,this.warning,  required this.onTap, required this.punkt});
 
   @override
   Widget build(BuildContext context) {
@@ -31,11 +32,11 @@ class Punkt extends StatelessWidget   {
             children: [
               Text(
                 punkt,
-                style: const TextStyle(
+                style:  TextStyle(
                   fontFamily: "SF",
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
-                  color: Color.fromRGBO(51, 51, 51, 1)
+                  color:warning!=null&&warning==true?Colors.red : Color.fromRGBO(51, 51, 51, 1)
                 ),
               ),
               SvgPicture.asset(

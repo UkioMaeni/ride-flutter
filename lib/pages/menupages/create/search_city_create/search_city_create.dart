@@ -1,13 +1,18 @@
 
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
 import 'package:flutter_application_1/http/city/city_model.dart';
 import 'package:flutter_application_1/http/city/http_city.dart';
+import 'package:flutter_application_1/http/user/http_user.dart';
 import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
 import 'package:flutter_application_1/pages/menupages/search/map/map_search.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:google_maps_webservice/places.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class ArgumentSetting {
   SvgPicture icon;
@@ -23,8 +28,9 @@ class MapPage {
 }
 
 class SearchFrom extends StatefulWidget {
+  final String city;
   final Function update;
-  const SearchFrom({required this.update, super.key});
+  const SearchFrom({required this.city, required this.update, super.key});
 
   
 
@@ -39,6 +45,13 @@ class _SearchFromState extends State<SearchFrom> {
     setState(() {
       _availableCityIndex=index;
     });
+    bool? perm=await HttpUser().getPermission("location");
+          if(perm!=null&&!perm){
+            return;
+          }
+         if(perm==null){
+          return;
+         }
     PlacesDetailsResponse details = await places.getDetailsByPlaceId(placeId);
     if(details.errorMessage!=""){
       setState(() {
@@ -68,7 +81,8 @@ class _SearchFromState extends State<SearchFrom> {
   @override
   void initState() {
 
-    localController.text = "";
+    localController.text = widget.city;
+    onTextChanged(localController.text);
     textFocus.requestFocus();
     textFocus.addListener(() {
       if (textFocus.hasFocus) {
@@ -89,21 +103,20 @@ class _SearchFromState extends State<SearchFrom> {
     localController.dispose();
     super.dispose();
   }
-
-  @override
-  Widget build(BuildContext context) {
-    ArgumentSetting arguments =
-        ModalRoute.of(context)!.settings.arguments as ArgumentSetting;
-   
-
-
-    void onTextChanged(String text) async{
+ void onTextChanged(String text) async{
         if (text.isNotEmpty) {
+          bool? perm=await HttpUser().getPermission("location");
+          if(perm!=null&&!perm){
+            return;
+          }
+         if(perm==null){
+          return;
+         }
           PlacesAutocompleteResponse response = await places.autocomplete(
     text,
-    language: "us", // Опционально, язык результатов,
+    language: "us", 
     types: ["postal_code","sublocality","administrative_area_level_3","locality","street_address"],
-    components: [Component(Component.country, "us")], // Опционально, ограничение результатов по стране
+    components: [Component(Component.country, "us")], 
   );
   print(response.predictions);
     setState(() {
@@ -120,6 +133,14 @@ class _SearchFromState extends State<SearchFrom> {
         
       
     }
+  @override
+  Widget build(BuildContext context) {
+    ArgumentSetting arguments =
+        ModalRoute.of(context)!.settings.arguments as ArgumentSetting;
+   
+
+
+   
 
     return Scaffold(
         backgroundColor: Colors.white,
@@ -173,19 +194,60 @@ class _SearchFromState extends State<SearchFrom> {
               ),
               focus
                   ?localController.text.isEmpty
-                  ? arguments.hint=="from"? SizedBox(
-                          height: 44,
-                          child: Row(
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 4, right: 10),
-                                child:
-                                    SvgPicture.asset("assets/svg/geo.svg"),
-                              ),
-                              const Text("Use my geolocation"),
-                            ],
-                          )):Container()
+                  ? arguments.hint=="from"? InkWell(
+                    onTap: ()async {
+                       bool serviceEnabled;
+                        LocationPermission permission;
+
+                        
+                        serviceEnabled = await Geolocator.isLocationServiceEnabled();
+                        if (!serviceEnabled) {
+                         
+                          return Future.error('Location services are disabled.');
+                        }
+
+                        permission = await Geolocator.checkPermission();
+                         if (permission == LocationPermission.denied) {
+                            permission = await Geolocator.requestPermission();
+                            if (permission == LocationPermission.denied) {
+                              // Permissions are denied, next time you could try
+                              // requesting permissions again (this is also where
+                              // Android's shouldShowRequestPermissionRationale 
+                              // returned true. According to Android guidelines
+                              // your App should show an explanatory UI now.
+                              return Future.error('Location permissions are denied');
+                            }
+                          }
+                      if(permission==LocationPermission.always||permission==LocationPermission.whileInUse){
+                            Position position = await Geolocator.getCurrentPosition(
+                          desiredAccuracy: LocationAccuracy.high,
+                        );
+                           MapPage params = MapPage(position.longitude.toString(), position.latitude.toString(), "mock",);
+
+                         Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => MapSearch(update: widget.update,placeId:"mock"),
+                            settings: RouteSettings(arguments: params),
+                          ),
+                        );
+                      }
+                      
+                    },
+                    child: SizedBox(
+                            height: 44,
+                            child: Row(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                      left: 4, right: 10),
+                                  child:
+                                      SvgPicture.asset("assets/svg/geo.svg"),
+                                ),
+                                const Text("Use my geolocation"),
+                              ],
+                            )),
+                  ):Container()
                       : SingleChildScrollView(
                           child: SizedBox(
                               height: 215,

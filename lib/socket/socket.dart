@@ -1,10 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/localStorage/tokenStorage/token_storage.dart';
+import 'package:flutter_application_1/pages/menupages/message/mess/mess.dart';
+import 'package:flutter_application_1/pages/menupages/provider/user_store.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 import 'package:uuid/uuid.dart';
 
@@ -16,12 +19,17 @@ class SocketMessage{
 }
 
 class AppMessage{
+  int clientId;
   String text;
   int status;
   String uuid;
+  int messageId;
   int chatId;
   int date;
+  
   AppMessage({
+    required this.clientId,
+    required this.messageId,
     required this.text,
     required this.status,
     required this.uuid,
@@ -47,37 +55,66 @@ class SocketProvider with ChangeNotifier {
   WebSocketChannel channel;
   bool isAuth=false;
   Uuid uuid=const  Uuid();
+  int page=1;
+  int totalPage=1;
+  int currentChatId=-1;
 
-  Map<String,List<AppMessage>> mapMessages={};
+  Map<int,List<AppMessage>> mapMessages={};
 
-  Future<void> insertMsgFromDB()async{
-    List<AppMessage>appMess=await appDB.getMessages();
-    Map<String, List<AppMessage>> chatMap = appMess.fold<Map<String, List<AppMessage>>>({}, (map, message) {
-      if(map[message.chatId.toString()]==null){
-        map[message.chatId.toString()]=[message];
-      }else{
-        map[message.chatId.toString()]!.insert(0, message);
-      }
-   
-    return map;
-  });
-    mapMessages=chatMap;
+
+  Map<int,int> counterMessage={};
+
+  resetCounterMessage(int chatId){
+    counterMessage[chatId]??=0;
+    updateTextInChats("",0);
   }
 
+  Function addMessage=(){};
+  Function updateMessage=(){};
+  Function fullRead=(){};
+  // addMessage(int chatId,List<AppMessage> messages){
+  //   if(mapMessages[chatId] != null){
+  //       mapMessages[chatId]!.addAll(messages);
+  //   }else{
+  //     mapMessages[chatId]=messages;
+  //   }
+  //   _subcriber();
+  // }
+
+
+  // Future<void> insertMsgFromDB()async{
+  //   List<AppMessage>appMess=await appDB.getMessages();
+  //   Map<String, List<AppMessage>> chatMap = appMess.fold<Map<String, List<AppMessage>>>({}, (map, message) {
+  //     if(map[message.chatId.toString()]==null){
+  //       map[message.chatId.toString()]=[message];
+  //     }else{
+  //       map[message.chatId.toString()]!.insert(0, message);
+  //     }
+   
+  //   return map;
+  // });
+  //   mapMessages={};//chatMap;
+  // }
+
   Function _subcriber=(){};
+  Function subcribeApp=(){};
+
+
+  
   void subscribe(Function fn){
     _subcriber=fn;
   }
   void unSubscribe(){
     _subcriber=(){};
+    fullRead=(){};
   }
 
   void editMessage(AppMessage newMsg,bool insert){
     
-    if(mapMessages[newMsg.chatId.toString()]==null){
-       mapMessages[newMsg.chatId.toString()]=[newMsg];
+    if(mapMessages[newMsg.chatId]==null){
+       mapMessages[newMsg.chatId]=[newMsg];
     }else{
-      mapMessages[newMsg.chatId.toString()]!.insert(0, newMsg);
+      mapMessages[newMsg.chatId]!.insert(0, newMsg);
     }
     _subcriber();
     if(insert){
@@ -91,7 +128,7 @@ class SocketProvider with ChangeNotifier {
 
    AppMessage? targetMessage = mapMessages[chatId.toString()]?.firstWhere((element) => element.uuid == uuid);
    if (targetMessage != null) {
-    // Обновляем статус найденного объекта
+
     Future.delayed(Duration(milliseconds: 1000),() {
 
 
@@ -112,7 +149,7 @@ class SocketProvider with ChangeNotifier {
 
   List<AppMessage> getCurrentMessage(int chatId){
 
-    return mapMessages[chatId.toString()]??[]; 
+    return mapMessages[chatId]??[]; 
   }
 
   SocketProvider({required this.channel}) {
@@ -147,22 +184,45 @@ class SocketProvider with ChangeNotifier {
         if(message.type=="message-itself"){
           Map<String,dynamic> statusMsg=json.decode(event);
           int status=statusMsg["status"];
+          int messageId=statusMsg["content_id"];
             int chatId=statusMsg["chat_id"];
             String uuId=statusMsg["front_content_id"];
-
-            editStatus(chatId,uuId,status);
+            updateMessage(uuId,status,messageId);
+           // editStatus(chatId,uuId,status);
           
         }
         if(message.type=="message"){
            Map<String,dynamic> mess=json.decode(event);
            String newUuid=uuid.v4();
-           AppMessage newmsg=AppMessage(text: mess["content"], status: mess["status"], uuid: newUuid,chatId: mess["chat_id"], date:mess["sent_time"] );
-           editMessage(
-            newmsg,
-            true
-           );
+           AppMessage newmsg=AppMessage(text: mess["content"], status: mess["status"], uuid: newUuid,chatId: mess["chat_id"], date:mess["sent_time"],messageId: mess["content_id"],clientId: -1 );
+          
+          if(newmsg.chatId==currentChatId){
+              addMessage(newmsg);
+          }else{
+            if(counterMessage[newmsg.chatId]!=null){
+              counterMessage[newmsg.chatId]=counterMessage[newmsg.chatId]!+1;
+            }else{
+              counterMessage[newmsg.chatId]=1;
+            }
+            subcribeApp();
+            if(chatsSubscribe==false){
+
+            }
+            updateTextInChats(newmsg.text,newmsg.chatId);
+            updateCountMessage();
+          }
            
-           
+          //  editMessage(
+          //   newmsg,
+          //   true
+          //  );
+        }
+        if(message.type=="full-read"){
+          int chatId=json.decode(event)["chat_id"];
+            if(currentChatId==chatId){
+              fullRead();
+            }
+
         }
    },
    onError: (error){
@@ -177,7 +237,9 @@ class SocketProvider with ChangeNotifier {
    );
   }
 
-  void sendMessage(String text,int chatId){
+
+
+  Future<void> sendMessage(String text,int chatId)async{
     String currUuid=uuid.v4();
     print(chatId);
     Map<String,dynamic> message={
@@ -187,10 +249,21 @@ class SocketProvider with ChangeNotifier {
       "chat_id":chatId
     };
     print(message);
-    AppMessage newMsg= AppMessage(text: text, status: -1, uuid: currUuid, chatId: chatId, date: -1);
-    editMessage(newMsg,false);
-    channel.sink.add(json.encode(message));
+    AppMessage newMsg= AppMessage(text: text, status: -1, uuid: currUuid, chatId: chatId, date: -1,messageId:-3,clientId: userStore.userInfo.clienId);
+    //editMessage(newMsg,false);
+    addMessage(newMsg);
+     channel.sink.add(json.encode(message));
+     Map<String,dynamic> read={
+      "chat_id":chatId,
+      "type":"message-read"
+     };
+     print(json.encode(read));
+     channel.sink.add(json.encode(read));
   }
 
+
+  Function updateTextInChats=(String msg,int chatId){};
+  bool chatsSubscribe=false;
+  Function updateCountMessage=(){};
 
 }

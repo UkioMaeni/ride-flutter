@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/http/user/http_user.dart';
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:flutter_application_1/pages/menupages/provider/store.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
@@ -50,10 +51,17 @@ class _UIMapState extends State<UIMap> {
   };
 
   getResult(double lat,double lng)async{
-
+    bool? perm=await HttpUser().getPermission("geocoding");
+          if(perm!=null&&!perm){
+            return;
+          }
+         if(perm==null){
+          return;
+         }
     final geocode = await Dio().get(
     "https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=AIzaSyDQ2a3xgarJk8qlNGzNCLzrH3H_XmGSUaY"
   );
+  //inspect(geocode);
   List<dynamic> addressComponents=geocode.data["results"][0]["address_components"];
   print(addressComponents);
   String city="";
@@ -82,6 +90,9 @@ class _UIMapState extends State<UIMap> {
           stateShort=element["short_name"];
       }
     });
+    if(city.isEmpty){
+      city=state;
+    }
     setState(() {
       _city=city;
       _homeNumber=homeNumber;
@@ -138,13 +149,18 @@ class _UIMapState extends State<UIMap> {
             _completer.complete(controller);
             _controller=await _completer.future;
           },
-          onCameraIdle: () async {
-            final bounds = await _controller.getLatLng(const ScreenCoordinate(x: 0, y: 0));
-            getResult(bounds.latitude,bounds.longitude);
+          onCameraMove: (position)async {
+            //final bounds = await _controller.getLatLng(const ScreenCoordinate(x: 0, y: 0));
+            LatLng center=position.target;
             setState(() {
-              latitudeRide = bounds.latitude;
-              longitudeRide = bounds.longitude;
+              latitudeRide = center.latitude;
+              longitudeRide = center.longitude;
             });
+          },
+          onCameraIdle: () async {
+            
+            getResult(latitudeRide,longitudeRide);
+           
           },
 
         ),

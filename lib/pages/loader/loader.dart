@@ -3,6 +3,10 @@ import 'dart:async';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/helpers/app_version.dart';
+import 'package:flutter_application_1/helpers/color_constants.dart';
+import 'package:flutter_application_1/helpers/firebaze_connect.dart';
+import 'package:flutter_application_1/helpers/socket_connect.dart';
 import 'package:flutter_application_1/http/chats/http_chats.dart';
 import 'package:flutter_application_1/http/instanse.dart';
 import 'package:flutter_application_1/http/token/http_token.dart';
@@ -18,16 +22,13 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:overlay_support/overlay_support.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
 
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
-}
 
 class AssetsElement{
-  SvgPicture onBoard1=SvgPicture.asset("assets/svg/onboard_1.svg");
-  SvgPicture onBoard2=SvgPicture.asset("assets/svg/onboard_2.svg");
-  SvgPicture onBoard3=SvgPicture.asset("assets/svg/onboard_3.svg");
-  SvgPicture onBoard4=SvgPicture.asset("assets/svg/onboard_4.svg");
+  SvgPicture onBoard1=SvgPicture.asset("assets/svg/onboard_1.svg",height: 200,);
+  SvgPicture onBoard2=SvgPicture.asset("assets/svg/onboard_2.svg",height: 200);
+  SvgPicture onBoard3=SvgPicture.asset("assets/svg/onboard_3.svg",height: 250);
+  SvgPicture onBoard4=SvgPicture.asset("assets/svg/onboard_4.svg",height: 300);
 }
 
 AssetsElement appAssets=AssetsElement();
@@ -55,104 +56,32 @@ double _progressValue=0.0;
     });
   }
 
-   void  isAuth(BuildContext context,String? fcmToken)async{
-  String next=await HttpToken().refreshToken();
-  if(next==ErrorTypeTimeoutEnum.timeout){
-      showDialog(context: context, builder: (context) {
-        return Center(
-          child: Text("timeout"),
-        );
-      },);
-  }
-  nextStep();
-  String token=await TokenStorage().getToken("refresh");
-  nextStep();
-  if(next=="auth" && token !="no"){
-    final wsUrl = Uri.parse("ws://31.184.254.86:9099/api/v1/chat/join");
-
-      
-      try {
-        late Timer authCheckTimer;
-        WebSocketChannel channel = WebSocketChannel.connect(wsUrl);
-        appSocket=SocketProvider(channel: channel);
-        appDB=DataBaseApp();
-       //appDB.create();
-        appSocket.insertMsgFromDB();
-        authCheckTimer = Timer.periodic(Duration(milliseconds: 100), (timer)async {
-          bool isAuth= appSocket.isAuth;
-          if(isAuth){
-            authCheckTimer.cancel();
-            if(fcmToken!=null){
-                await HttpChats().setFcmToken(fcmToken);
-                nextStep();
-            }
-            
-            fullStep();
-          Navigator.pushNamedAndRemoveUntil(context, "/menu", (route) => false);
-         }
-        });
-       
-        
-      } catch (e) {
-        print(e);
-        
-      }
-     fullStep();
-      
-     // StreamController<dynamic> streamController = StreamController<dynamic>();
-   // Navigator.pushReplacementNamed(context,"/menu" );
-  }else{
-    Navigator.pushAndRemoveUntil(context, 
-    MaterialPageRoute(builder: (context) => Onboard(),), (route) => false);
-  }
- } 
+  
 
 
 
 
   initializeService(BuildContext context)async{
-   await Firebase.initializeApp();
+    nextStep();
+    appInfo=AppInfo();
+    await appInfo.getAppVersion();
    nextStep();
     ///firebase 
-    FirebaseMessaging messaging = FirebaseMessaging.instance;
-    FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-    NotificationSettings settings = await messaging.requestPermission(
-  alert: true,
-  announcement: false,
-  badge: true,
-  provisional: false,
-  sound: true,
-);
-  nextStep();
-   if(settings.authorizationStatus==AuthorizationStatus.authorized){
-    print("AUTHORIZEFIREBASE");
-  String? fcmToken = await messaging.getToken();
-  print(fcmToken);
-  nextStep();
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) { 
-      showSimpleNotification(
-        Text("Test"),
-        leading: Text("3"),
-        subtitle: Text("sub"),
-        background: Colors.cyan,
-        duration: Duration(seconds: 2)
-      );
-    });
-          InitializationSettings(
-            iOS: DarwinInitializationSettings(),
-          );
-  //await FirebaseMessaging.instance.setAutoInitEnabled(true);
-  nextStep();
-    //authorization
-  isAuth(context,fcmToken);
-  }
+    String tokenFB=await inicializeRirebase();
+
+         await Future.delayed(Duration(seconds: 2));
+    nextStep();
+     await auth(context,tokenFB,true);
+      fullStep();
+  
+  
   }
 
   
 
 @override
   void initState() {
-    FirstWelcome().setWelcome();//TODO: больше нет показа онбординга
+    FirstWelcome().setWelcome();
     initializeService(context);
     super.initState();
   }
@@ -160,30 +89,34 @@ double _progressValue=0.0;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(64, 123, 255, 1),
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(64, 123, 255, 1),
+        backgroundColor: Colors.white,
         toolbarHeight: 0,
         bottomOpacity: 0,
+        elevation: 0,
         
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          Image.asset("assets/image/loader.png"),
+          SizedBox(height: 80,),
           Text(
-            "Добро пожаловать в EasyRide! ",
+            "Welcome to iZZi Ride!",
             style: TextStyle(
-              color: Colors.white,
+              color: brandBlack,
               fontFamily: "SF",
               fontSize: 32,
-              fontWeight: FontWeight.w700
+              fontWeight: FontWeight.w700,
             ),
             textAlign: TextAlign.center,
           ),
+          SizedBox(height: 16,),
           Text(
-            "Объединяем\nпопутчиков во всем мире",
+            "Find a ride. Give a ride. Easy ride.",
             style: TextStyle(
-              color: Colors.white,
+              color: Color.fromRGBO(177, 178, 179, 1),
               fontFamily: "SF",
               fontSize: 18,
               fontWeight: FontWeight.w400
@@ -201,7 +134,7 @@ double _progressValue=0.0;
               width: double.infinity,
               height: 10.5,
               decoration: BoxDecoration(
-                color: Color.fromRGBO(255, 255, 255, 0.56),
+                color: Color.fromRGBO(58, 121, 215, 0.24),
                 borderRadius: BorderRadius.circular(7)
               ),
               child: Stack(
@@ -212,7 +145,7 @@ double _progressValue=0.0;
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(7),
-                        color: Colors.white
+                        color: Color.fromRGBO(58, 121, 215, 1)
                       ),
                     ),
                   )

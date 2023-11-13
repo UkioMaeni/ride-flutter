@@ -22,9 +22,9 @@ class BarNavigation extends StatelessWidget{
                                 Navigator.pop(context);
                               },
                               child: Padding(
-                                padding: const EdgeInsets.only(left: 9),
+                                padding: const EdgeInsets.only(left: 7),
                                 child: Container(
-                                  alignment: Alignment.centerLeft,
+                                  alignment: Alignment.center,
                                   width: 40,
                                   height: 40,
                                   child: SvgPicture.asset(

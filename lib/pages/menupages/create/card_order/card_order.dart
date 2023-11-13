@@ -8,7 +8,8 @@ import 'package:intl/intl.dart';
 
 class CardOrder extends StatefulWidget{
 DriverOrder driverOrder;
-CardOrder({required this.driverOrder, super.key});
+Function side;
+CardOrder({required this.side, required this.driverOrder, super.key});
 
   @override
   State<CardOrder> createState() => _CardOrderState();
@@ -34,15 +35,7 @@ class _CardOrderState extends State<CardOrder> {
     
     String formattedNumber = formatter.format(widget.driverOrder.price);
 
-    return InkWell(
-      onTap: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => CardFullOrder(
-          startLocation: widget.driverOrder.startCountryName,
-          endLocation: widget.driverOrder.endCountryName,
-          orderId:widget.driverOrder.orderId
-        ),));
-      },
-      child: Padding(
+    return  Padding(
         padding: const EdgeInsets.only(left: 15,right: 15,top: 10),
         child: Container(
           decoration: BoxDecoration(
@@ -53,11 +46,11 @@ class _CardOrderState extends State<CardOrder> {
                 color: Color.fromRGBO(0, 0, 0, 0.1),
                 spreadRadius: 0,
                 blurRadius: 50,
-                offset: Offset(0, 10), // смещение тени по горизонтали и вертикали
+                offset: Offset(0, 10), 
               ),
         ],
           ),
-          height: 193,
+          
           width: double.infinity,
           padding: const EdgeInsets.all(14),
           child: Column(
@@ -230,7 +223,7 @@ class _CardOrderState extends State<CardOrder> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "свободные места",
+                      "Free places",
                       style: const TextStyle(
                             fontFamily: "SF",
                             fontSize: 12,
@@ -245,7 +238,7 @@ class _CardOrderState extends State<CardOrder> {
                           children: [
                             for (int i = 0; i < widget.driverOrder.seatsInfo.reserved; i++) Padding(
                               padding: const EdgeInsets.only(right: 5.7),
-                              child: SvgPicture.asset("assets/svg/passanger.svg"),
+                              child: SvgPicture.asset("assets/svg/passenger.svg"),
                             ),
                             for (int i = 0; i < widget.driverOrder.seatsInfo.free; i++) Padding(
                               padding: const EdgeInsets.only(right: 5.7),
@@ -295,17 +288,51 @@ class _CardOrderState extends State<CardOrder> {
                                 ],
                               ),
                             ),
+
                           ],
                         )
                       ],
-                    )
+                    ),
+
                   ],
                 ),
-              )
+              ),
+              InkWell(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CardFullOrder(
+                    side: (){
+                      widget.side();
+                    },
+                    fullOrderType: FullOrderType.driver,
+                    startLocation: widget.driverOrder.startCountryName,
+                    endLocation: widget.driverOrder.endCountryName,
+                    orderId:widget.driverOrder.orderId
+                  ),));
+                },
+                child: Container(
+                  margin: EdgeInsets.only(top:13),
+                        height: 48,
+                        width: double.infinity,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Color.fromRGBO(242, 243, 245, 1),
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: Text(
+                          "Details",
+                          style: TextStyle(
+                            color: Color.fromRGBO(64, 123, 255, 1),
+                            fontFamily: "Inter",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600
+                          ),
+                        ),
+                      ),
+              ),
              ],
           ),
         ),
-      ),
+      
     );
   }
 }

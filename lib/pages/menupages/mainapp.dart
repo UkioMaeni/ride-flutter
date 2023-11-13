@@ -4,11 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
 import 'package:flutter_application_1/http/user/http_user.dart';
+import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/pages/menupages/create/create.dart';
 import 'package:flutter_application_1/pages/menupages/my_roads/my_roads.dart';
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:flutter_application_1/pages/menupages/message/messages.dart';
 import 'package:flutter_application_1/pages/menupages/profile/profile.dart';
+import 'package:flutter_application_1/pages/menupages/provider/user_store.dart';
 import 'package:flutter_application_1/pages/menupages/search/search.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -23,61 +25,45 @@ class MainApp extends StatefulWidget {
 class _MainAppState extends State<MainApp> {
 
 
-Future<void> setupInteractedMessage() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
 
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
-    if (initialMessage != null) {
-      _handleMessage(initialMessage);
-    }
-
-    // Also handle any interaction when the app is in the background via a
-    // Stream listener
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-  }Future<void> setupInteractedMessages() async {
-    // Get any messages which caused the application to open from
-    // a terminated state.
-    RemoteMessage? initialMessage =
-        await FirebaseMessaging.instance.getInitialMessage();
-
-    // If the message also contains a data property with a "type" of "chat",
-    // navigate to a chat screen
-    if (initialMessage != null) {
-      _handleMessage(initialMessage);
-    }
-
-    // Also handle any interaction when the app is in the background via a
-    // Stream listener
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-  }
-
-   void _handleMessage(RemoteMessage message) {
-     print("notion");
-    if (message.data['type'] == 'chat') {
-     
-    }
-  }
 
 
 int _indexTab=0;
 
   getUserInfo() async {
-    await HttpUser().getUser();
+    userStore.setUserInfo();
+  }
+
+
+ updateCountMessage(){
+    setState(() {
+      
+    });
   }
 
   @override
   void initState() {
-    getUserInfo();
-    super.initState();
-     setupInteractedMessage();
-  }
+    if(userStore.userInfo.auth){
+         getUserInfo();
+      appSocket.updateCountMessage=updateCountMessage;
+    }
+     
+      super.initState();
+    }
+   
+     
+ 
 
   @override
   Widget build(BuildContext context) {
+    int count=0;
+    print(userStore.userInfo.auth);
+    if(userStore.userInfo.auth){
+        appSocket.counterMessage.forEach((key, value) {
+        count+=value;
+    });
+    }
+    
     return DefaultTabController(
       length: 5,
       child: Scaffold(
@@ -87,7 +73,7 @@ int _indexTab=0;
           toolbarHeight: 0,
           backgroundColor: Colors.white,
           toolbarOpacity: 0,
-          elevation: 1,
+          elevation: 0,
         ),
         body: TabBarView(
           clipBehavior: Clip.none,
@@ -163,8 +149,41 @@ int _indexTab=0;
                 
                 ),
               Tab( 
-                icon: SvgPicture.asset("assets/svg/messageTab.svg",
-                color: _indexTab==3?brandBlue:brandGrey),
+                icon: Stack(
+                  children: [
+                    
+                    SvgPicture.asset(
+                      "assets/svg/messageTab.svg",
+                      color: _indexTab==3?brandBlue:brandGrey
+                      ),
+                      count>0? Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        alignment: Alignment.center,
+                        height: 17,
+                        constraints: BoxConstraints(
+                          minWidth: 14
+                        ),
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: Text(
+                          count.toString(),
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: "SF",
+                            fontWeight: FontWeight.w600,
+                            fontSize: 10
+                          ),
+                        ),
+                      )
+                      ):SizedBox.shrink(),
+                  ],
+                ),
                 iconMargin: EdgeInsets.only(bottom: 0),
                 child: Container(
                     alignment: Alignment.center,

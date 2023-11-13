@@ -10,57 +10,37 @@ import 'package:flutter_application_1/pages/menupages/provider/store.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class DopOptions extends StatefulWidget {
-  final Function side;
-  final Preferences preferences;
-  final int count;
-  final int carId;
   const DopOptions({required this.side, required this.preferences,required this.count,required this.carId, super.key});
+
+  final int carId;
+  final int count;
+  final Preferences preferences;
+  final Function side;
 
   @override
   State<DopOptions> createState() => _DopOptionsState();
 }
 
 class _DopOptionsState extends State<DopOptions> {
+  //animalRide:
+  late int animalRide;
 
-  TextEditingController myController = TextEditingController();
+  //baggage:
+  late int baggage;
+
+  //childPassanger:
+  late int childPassange;
 
   ////////////////////////answer options
   late int count;
+
   //countPassanger:
   late int countPassanger;
-  setCountPassanger(int value) {
-    setState(() {
-      countPassanger = value;
-    });
-  }
-  //baggage:
-  late int baggage;
-  setBaggage(int value) {
-    setState(() {
-      baggage = value;
-    });
-  }
-  //childPassanger:
-  late int childPassange;
-  setChildPassange(int value) {
-    setState(() {
-      childPassange = value;
-    });
-  }
-  //animalRide:
-  late int animalRide;
-  setAnimalRide(int value) {
-    setState(() {
-      animalRide = value;
-    });
-  }
+
+  TextEditingController myController = TextEditingController();
   //smoking:
   late int smoking;
-  setSmoking(int value) {
-    setState(() {
-      smoking = value;
-    });
-  }
+
     @override
   void initState() {
     count=widget.count;
@@ -71,6 +51,37 @@ class _DopOptionsState extends State<DopOptions> {
     smoking=widget.preferences.smoking?1:2;
     super.initState();
   }
+
+  setCountPassanger(int value) {
+    setState(() {
+      countPassanger = value;
+    });
+  }
+
+  setBaggage(int value) {
+    setState(() {
+      baggage = value;
+    });
+  }
+
+  setChildPassange(int value) {
+    setState(() {
+      childPassange = value;
+    });
+  }
+
+  setAnimalRide(int value) {
+    setState(() {
+      animalRide = value;
+    });
+  }
+
+  setSmoking(int value) {
+    setState(() {
+      smoking = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -85,19 +96,16 @@ class _DopOptionsState extends State<DopOptions> {
       ),
       body:Column(
         children: [
-        BarNavigation(back: true, title: "Доп"),
-Expanded(
-  child:   ListView(
-  
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-
-          children: [
- 
-            Container(  
-              padding: const EdgeInsets.only( bottom: 8),  
-              child: Text(
-  
-                "Выберите",
+        BarNavigation(back: true, title: "Additional options"),
+        Expanded(
+          child:   ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              children: [
+                Container(  
+                  padding: const EdgeInsets.only( bottom: 8),  
+                  child: Text(
+      
+                "Select the number of available seats",
   
                 style: currentTextStyle,
   
@@ -119,7 +127,7 @@ Expanded(
   
               child: Text(
   
-                "Перевозка",
+                "Luggage",
   
                 style: currentTextStyle,
   
@@ -147,7 +155,7 @@ Expanded(
   
               child: Text(
   
-                "Детское кресло",
+                "Baby chair",
   
                 style: currentTextStyle,
   
@@ -175,7 +183,7 @@ Expanded(
   
               child: Text(
   
-                "Животные",
+                "Animals",
   
                 style: currentTextStyle,
   
@@ -200,7 +208,7 @@ Expanded(
             Container(  
               padding: const EdgeInsets.only(top: 24, bottom: 8),  
               child: Text(  
-                "Курение",  
+                "Smoking",  
                 style: currentTextStyle,  
               ), 
             ),
@@ -214,7 +222,7 @@ Expanded(
             Container(
               padding: const EdgeInsets.only(top: 24, bottom: 8),
               child: Text(
-                "Коммент",
+                "Comment on the ride",
                 style: currentTextStyle,
               ),
             ),
@@ -231,14 +239,18 @@ Expanded(
                   
                   contentPadding: EdgeInsets.fromLTRB(12.0, 12.0, 12.0, 12.0),
                   border: InputBorder.none,
-                  hintText: "Как поедете, планируете ли остановки, правила поведения в машине и т.д.",
+                  hintText: "How will you go, do you plan stops, rules of behavior in the car, etc.",
                 ),
                 textCapitalization: TextCapitalization.sentences,
               ),
             
 ),
-        Padding(
-              padding: const EdgeInsets.only(top:32),
+          ],
+  
+        ),
+),
+     Padding(
+              padding: const EdgeInsets.only(bottom:32,left: 15,right: 15),
               child: InkWell(
                 onTap: (){
                   bool baggage_=baggage==1?true:false;
@@ -247,6 +259,7 @@ Expanded(
                   bool smoking_=smoking==1?true:false;
                   DopInfo dopInfo=DopInfo(countPassanger,baggage_,childPassange_,animal_,smoking_,myController.text);
                   storeApp.setDopInfo(dopInfo);
+                  storeApp.setComment(myController.text);
                   print(storeApp.dopInfo.animal);
                   Navigator.push(
                     context, MaterialPageRoute(
@@ -267,7 +280,7 @@ Expanded(
                     
                   ),
                   child: const Text(
-                    "Продолжить",
+                    "Continue",
                     style: TextStyle(
                       color: Color.fromRGBO(255,255,255,1),
                       fontFamily: "Inter",
@@ -278,11 +291,6 @@ Expanded(
                 ),
               ),
             )
-          ],
-  
-        ),
-),
-
         ],
       ) 
     );

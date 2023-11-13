@@ -97,7 +97,7 @@ void _decrement(){
                     child: Container(
                       alignment: Alignment.center,
                       child: Text(
-                        "Колличество\nбронируемых мест",
+                        "Number of reserved seats",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: "SF",

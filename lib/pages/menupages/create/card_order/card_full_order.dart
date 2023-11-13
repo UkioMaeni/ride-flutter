@@ -1,14 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
+import 'package:flutter_application_1/http/chats/http_chats.dart';
 import 'package:flutter_application_1/http/orders/orders.dart';
 import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
+import 'package:flutter_application_1/pages/UI/popup/popup.dart';
+import 'package:flutter_application_1/pages/menupages/create/card_order/card_order_redact/card_order_redact.dart';
+import 'package:flutter_application_1/pages/menupages/message/message_page.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_dash/flutter_dash.dart';
-
+import 'package:map_launcher/map_launcher.dart' as Launcher;
+import 'package:string_to_color/string_to_color.dart';
+enum FullOrderType{
+  driver,user,none
+}
 class CardFullOrder extends StatefulWidget{
-  const CardFullOrder({required this.startLocation,required this.endLocation,required this.orderId, super.key});
+  final int? seats;
+  final FullOrderType? fullOrderType;
+  final Function side;
+  const CardFullOrder({required this.side, this.seats, this.fullOrderType, required this.startLocation,required this.endLocation,required this.orderId, super.key});
 
   final String endLocation;
   final int orderId;
@@ -19,15 +30,65 @@ class CardFullOrder extends StatefulWidget{
 }
 
 class _CardFullOrderState extends State<CardFullOrder> {
+
+ Future<void> _launchUniversalLinkIos(double lat,double lng) async {
+  bool? visit=await Launcher.MapLauncher.isMapAvailable(Launcher.MapType.apple);
+  if (visit!=null && visit) {
+  await Launcher.MapLauncher.showMarker(
+    mapType: Launcher.MapType.apple,
+    coords:  Launcher.Coords(lat, lng),
+    title: widget.startLocation,
+    
+  );
+}
+  }
+
+
+  bool tapBlocked=false;
+
+  void update(){
+    setState(() {
+      
+    });
+  }
+
+  @override
+  void dispose() {
+    print("dis");
+    super.dispose();
+  }
+
+  openModalDeleteUser(String name,int clientId){
+        showDialog(
+          context: context, 
+          builder: (context){
+            return Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14)
+                    ),
+                    child: AppPopup(warning: false, title: "Delete User?", description: "Do you really want to\ndelete"+name+"?", pressYes: ()async{
+                      int result=await HttpUserOrder().deleteUserInOrder(widget.orderId, clientId);
+                      print("result: "+result.toString());
+                      setState(() {
+                        widget.side();
+                      });
+                      Navigator.pop(context);
+                    }, pressNo: ()=>Navigator.pop(context)),
+                    );
+          }
+          );
+  }
+
   @override
   Widget build(BuildContext context) {
+   
     return Scaffold(
       appBar: AppBar(
         toolbarHeight: 0,
       ),
       body: Column(
         children: [
-          BarNavigation(back: true, title: "${widget.startLocation[0].toUpperCase()+widget.startLocation.substring(1)} -> ${widget.endLocation[0].toUpperCase()+widget.endLocation.substring(1)}"),
+          BarNavigation(back: true, title: "${widget.startLocation[0].toUpperCase()+widget.startLocation.substring(1)} - ${widget.endLocation[0].toUpperCase()+widget.endLocation.substring(1)}"),
           FutureBuilder<UserOrderFullInformation?>(
               future: HttpUserOrder().getOrderInfo(widget.orderId),
               builder: (context, snapshot) {
@@ -44,7 +105,8 @@ class _CardFullOrderState extends State<CardFullOrder> {
                 if(fullUserOrder==null){
                     return Center();
                 }
-                
+                 FullOrderType fullOrderType=fullUserOrder.isDriver? FullOrderType.driver:FullOrderType.user;
+                print(fullUserOrder.automobile.manufacturer);
                  final  _initialCameraPosition=CameraPosition(
                   target: LatLng(
                     fullUserOrder.location[0].latitude,
@@ -62,408 +124,728 @@ class _CardFullOrderState extends State<CardFullOrder> {
           
                 String formattedTime = DateFormat('HH:mm').format(dateTime);
                 formattedTime = formattedTime.split(':').map((segment) => segment.padLeft(2, '0')).join(':');
-          
-                return  SingleChildScrollView(
-                  physics: BouncingScrollPhysics(),
-                  padding: EdgeInsets.symmetric(vertical: 0),
-                  child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 12,vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Color.fromRGBO(238, 238, 238, 1)
-                        ),
-                        
-                        child: Column(
-                          children: [
-                            Container(
+                print(fullUserOrder.isBooked);
+                return  Expanded(
+                  child: SingleChildScrollView(
+                    physics: BouncingScrollPhysics(),
+                    padding: EdgeInsets.symmetric(vertical: 0),
+                    child: Column(
+                      children: [
+                        Container(
+                              margin: EdgeInsets.symmetric(horizontal: 15),
+                              padding: EdgeInsets.symmetric(horizontal: 12,vertical: 12),
                               decoration: BoxDecoration(
-                                color: Colors.white
+                                color: Color.fromRGBO(238, 238, 238, 1),
+                                borderRadius: BorderRadius.circular(13)
                               ),
-                              width: double.infinity,
+                              
                               child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Text(
-                                    "${fullUserOrder.price}0 \$",
-                                    style: TextStyle(
-                                                    fontFamily: "SF",
-                                                    fontSize: 20,
-                                                    fontWeight: FontWeight.w700,
-                                                    color: Color.fromRGBO(0, 0, 0, 0.87)
-                                                  ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment.end,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 4,vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  color: Color.fromRGBO(244, 244, 244, 1)
-                                                ),
-                                                child: Text(
-                                                  formattedDate,
-                                                  style: TextStyle(
-                                                    fontFamily: "SF",
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: brandBlack
-                                                  ),
-                                                ),
-                                              ),
-                                              SizedBox(width: 4,),
-                                              Container(
-                                                padding: EdgeInsets.symmetric(horizontal: 4,vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  color: Color.fromRGBO(244, 244, 244, 1)
-                                                ),
-                                                child: Text(
-                                                  formattedTime,
-                                                  style: TextStyle(
-                                                    fontFamily: "SF",
-                                                    fontSize: 10,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: brandBlack
-                                                  ),
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                          Text(
-                                            fullUserOrder.location[0].city,
-                                            style: TextStyle(
-                                                    fontFamily: "SF",
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: brandBlack
-                                                  ),
-                                          )
-                                        ],
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            fullUserOrder.location[1].city,
-                                            style: TextStyle(
-                                                    fontFamily: "SF",
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: brandBlack
-                                                  ),
-                                          )
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                  Text(
-                                    "Свободные места ${fullUserOrder.seatsInfo.free}/${fullUserOrder.seatsInfo.total}",
-                                    style: TextStyle(
-                                                    fontFamily: "SF",
-                                                    fontSize: 12,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: brandBlack
-                                                  ),
-                                  ),
-                                  Row(
-                                    children: [
-                                      for (int i = 0; i < fullUserOrder.seatsInfo.reserved; i++) Padding(
-                                            padding: const EdgeInsets.only(right: 5.7),
-                                            child: SvgPicture.asset("assets/svg/passanger.svg"),
-                                          ),
-                            
-                                       for (int i = 0; i < fullUserOrder.seatsInfo.free; i++) Padding(
-                                              padding: const EdgeInsets.only(right: 5.7),
-                                              child: SvgPicture.asset("assets/svg/passanger_empty.svg"),
-                                            ),
-                                    ],
-                                  ),
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                          width: 7,
-                                          height: 7,
-                                          decoration: BoxDecoration(
-                                            color: brandBlue,
-                                            borderRadius: BorderRadius.circular(7)
-                                          ),
-                                      ),
-                                      Expanded(
-                                        child: DashedLineWidget(windowWidth: MediaQuery.of(context).size.width, )
-                                        ),
-                                        Container(
-                                          width: 7,
-                                          height: 7,
-                                          decoration: BoxDecoration(
-                                            color: brandBlue,
-                                            borderRadius: BorderRadius.circular(7)
-                                          ),
-                                      ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                            SizedBox(height:24 ,),
-                            Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Данные о пассажирах",
-                                    style: TextStyle(
-                                                    fontFamily: "SF",
-                                                    fontSize: 16,
-                                                    fontWeight: FontWeight.w500,
-                                                    color: brandBlack
-                                                  ),
-                                  ),
-                                  fullUserOrder.travelers.length==0
-                                  ?
                                   Container(
-                                    width: double.infinity,
-                                    margin: EdgeInsets.only(top:12,bottom: 12),
-                                    height: 82,
-                                    child: Column(
-                                      children: [
-                                        Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(20),
-                                          color: brandGrey
-                                        ),
-                                      ),
-                                      SizedBox(height: 8,),
-                                      Text(
-                                        "У вас пока нет попутчиков для\nсовместной поездки",
-                                        textAlign: TextAlign.center,
-                                        style: TextStyle(
-                                          color: Color.fromRGBO(0, 0, 0, 0.6),
-                                          fontFamily: "SF",
-                                          fontWeight: FontWeight.w400,
-                                          fontSize: 14
-                                        ),
-                                      )
-                                      ],
-                                    ),
-                                  )
-                                  : Row(
-                                    children: [
-                                        for (int i = 0; i < fullUserOrder.travelers.length; i++) Column( children: [
-                                          Container(
-                                        width: 40,
-                                        height: 40,
-                                        decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(20),
-                                          color: brandGrey
-                                        ),
-                                      ),
-                                      Column(
-                                        children: [
-                                          Text(
-                                            fullUserOrder.travelers[i].nickname
-                                          )
-                                        ],
-                                      )
-                                        ],)
-                                      
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 24,),
-                            Container(
-                            
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Colors.white
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    "Точка сбора на карте",
-                                    style: TextStyle(
-                                          color: Color.fromRGBO(0, 0, 0, 0.87),
-                                          fontFamily: "SF",
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 16
-                                        ),
-                                  ),
-                                  Container(
-                                    
-                                    height: 140,
-                                    child: Stack(
-                                      children: [
-                                        GoogleMap(
-                                          initialCameraPosition: _initialCameraPosition,
-                                          scrollGesturesEnabled: false,
-                                          myLocationButtonEnabled:false
-                                          ),
-                                          Center(
-                                            child: SvgPicture.asset("assets/svg/geo.svg"),
-                                          )
-                                      ],
-                                    ),
-                                  ),
-                                  Container(
-                                    alignment: Alignment.center,
-                                    child: Text(
-                                      fullUserOrder.location[0].location,
-                                      style: TextStyle(
-                                            color: Color.fromRGBO(0, 0, 0, 0.87),
-                                            fontFamily: "SF",
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 14
-                                          ),
-                                    ),
-                                  ),
-                                  
-                                ],
-                              ),
-                            ),
-                            SizedBox(height: 24,),
-                                  Container(
+                                    padding: EdgeInsets.symmetric(vertical: 12,horizontal: 16),
                                     decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12)
+                                    ),
+                                    width: double.infinity,
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          "${fullUserOrder.price}0 \$",
+                                          style: TextStyle(
+                                                          fontFamily: "SF",
+                                                          fontSize: 20,
+                                                          fontWeight: FontWeight.w700,
+                                                          color: Color.fromRGBO(0, 0, 0, 0.87)
+                                                        ),
+                                        ),
+                                        SizedBox(height: 16,),
+                                        Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          crossAxisAlignment: CrossAxisAlignment.end,
+                                          children: [
+                                            Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Container(
+                                                      padding: EdgeInsets.symmetric(horizontal: 4,vertical: 2),
+                                                      decoration: BoxDecoration(
+                                                        color: Color.fromRGBO(244, 244, 244, 1)
+                                                      ),
+                                                      child: Text(
+                                                        formattedDate,
+                                                        style: TextStyle(
+                                                          fontFamily: "SF",
+                                                          fontSize: 10,
+                                                          fontWeight: FontWeight.w500,
+                                                          color: brandBlack
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    SizedBox(width: 4,),
+                                                    Container(
+                                                      
+                                                      padding: EdgeInsets.symmetric(horizontal: 4,vertical: 2),
+                                                      decoration: BoxDecoration(
+                                                        
+                                                        color: Color.fromRGBO(244, 244, 244, 1)
+                                                      ),
+                                                      child: Text(
+                                                        formattedTime,
+                                                        style: TextStyle(
+                                                          fontFamily: "SF",
+                                                          fontSize: 10,
+                                                          fontWeight: FontWeight.w500,
+                                                          color: brandBlack
+                                                        ),
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  fullUserOrder.location[0].city,
+                                                  style: TextStyle(
+                                                          fontFamily: "SF",
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w500,
+                                                          color: brandBlack
+                                                        ),
+                                                )
+                                              ],
+                                            ),
+                                            Column(
+                                              children: [
+                                                Text(
+                                                  fullUserOrder.location[1].city,
+                                                  style: TextStyle(
+                                                          fontFamily: "SF",
+                                                          fontSize: 16,
+                                                          fontWeight: FontWeight.w500,
+                                                          color: brandBlack
+                                                        ),
+                                                )
+                                              ],
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(height: 9.5,),
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.center,
+                                          children: [
+                                            Container(
+                                                width: 7,
+                                                height: 7,
+                                                decoration: BoxDecoration(
+                                                  color: brandBlue,
+                                                  borderRadius: BorderRadius.circular(7)
+                                                ),
+                                            ),
+                                            Expanded(
+                                              child: DashedLineWidget(windowWidth: MediaQuery.of(context).size.width-100, )
+                                              ),
+                                              Container(
+                                                width: 7,
+                                                height: 7,
+                                                decoration: BoxDecoration(
+                                                  color: brandBlue,
+                                                  borderRadius: BorderRadius.circular(7)
+                                                ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(height: 16,),
+                                        Text(
+                                          "Free places ${fullUserOrder.seatsInfo.free}/${fullUserOrder.seatsInfo.total}",
+                                          style: TextStyle(
+                                                          fontFamily: "SF",
+                                                          fontSize: 12,
+                                                          fontWeight: FontWeight.w500,
+                                                          color: brandBlack
+                                                        ),
+                                        ),
+                                        SizedBox(height: 7,),
+                                        Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  for (int i = 0; i < fullUserOrder.seatsInfo.reserved; i++) Padding(
+                                    padding: const EdgeInsets.only(right: 5.7),
+                                    child: SvgPicture.asset("assets/svg/passenger.svg"),
+                                  ),
+                                  for (int i = 0; i < fullUserOrder.seatsInfo.free; i++) Padding(
+                                    padding: const EdgeInsets.only(right: 5.7),
+                                    child: SvgPicture.asset("assets/svg/passanger_empty.svg"),
+                                  ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.17),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        SvgPicture.asset("assets/svg/childSeats.svg",color:fullUserOrder.preferences.childCarSeat?Color.fromRGBO(64,123,255,1):Color.fromRGBO(173,179,188,1) ,),
+                                        fullUserOrder.preferences.childCarSeat?SizedBox.shrink():Icon(Icons.close,size: 30,weight: 1,color: Color.fromARGB(255, 169, 108, 104) ,)
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.17),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        SvgPicture.asset("assets/svg/animals.svg",color:fullUserOrder.preferences.animals?Color.fromRGBO(64,123,255,1):Color.fromRGBO(173,179,188,1) ,),
+                                        fullUserOrder.preferences.animals?SizedBox.shrink():Icon(Icons.close,size: 30,weight: 2,color: Color.fromARGB(255, 169, 108, 104)  ,)
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 8.17),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        SvgPicture.asset("assets/svg/luggage.svg",color:fullUserOrder.preferences.luggage?Color.fromRGBO(64,123,255,1):Color.fromRGBO(173,179,188,1) ,),
+                                        fullUserOrder.preferences.luggage?SizedBox.shrink():Icon(Icons.close,size: 30,weight: 2,color: Color.fromARGB(255, 169, 108, 104)  ,)
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(right: 0),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        SvgPicture.asset("assets/svg/smoking.svg",color:fullUserOrder.preferences.smoking?Color.fromRGBO(64,123,255,1):Color.fromRGBO(173,179,188,1) ,),
+                                        fullUserOrder.preferences.smoking?SizedBox.shrink():Icon(Icons.close,size: 30,weight: 2,color: Color.fromARGB(255, 169, 108, 104)  ,)
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          )
+                                        
+                                      ],
+                                    ),
+                                  ),
+                                  SizedBox(height: fullOrderType==FullOrderType.driver?24:0 ,),
+                                  fullOrderType==FullOrderType.driver
+                                  ?Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.symmetric(vertical: 12,horizontal: 16),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(12),
                                       color: Colors.white
                                     ),
                                     child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text(
-                                          "Детали поездки",
-                                          style: TextStyle(
-                                            color: Color.fromRGBO(0, 0, 0, 0.87),
-                                            fontFamily: "SF",
-                                            fontWeight: FontWeight.w500,
-                                            fontSize: 16
+                                        Padding(
+                                          padding: const EdgeInsets.only(bottom: 10),
+                                          child: Text(
+                                            "Passenger data",
+                                            style: TextStyle(
+                                                            fontFamily: "SF",
+                                                            fontSize: 16,
+                                                            fontWeight: FontWeight.w500,
+                                                            color: brandBlack
+                                                          ),
                                           ),
                                         ),
-                                        
+                                        fullUserOrder.travelers.length==0
+                                        ?
                                         Container(
-                                          height: 68,
-                                          alignment: Alignment.center,
-                                          decoration: const BoxDecoration(
-                                            border:Border(
-                                              bottom: BorderSide(
-                                                color: Color.fromRGBO(245, 245, 245, 1),
-                                                width: 1,
-                                                style: BorderStyle.solid
-                                              )
-                                            )
-                                          ),
+                                          width: double.infinity,
+                                          margin: EdgeInsets.only(top:12,bottom: 12),
+                                          height: 82,
                                           child: Column(
                                             children: [
-                                               Text(
-                                                "Точка сбора",
-                                                style: TextStyle(
-                                                  color: Color.fromRGBO(0, 0, 0, 0.87),
-                                                  fontFamily: "Inter",
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 14
-                                                ),
+                                              Container(
+                                                alignment: Alignment.center,
+                                              width: 40,
+                                              height: 40,
+                                              decoration: BoxDecoration(
+                                                borderRadius: BorderRadius.circular(20),
+                                                color: Color.fromRGBO(247, 247, 253, 1)
                                               ),
-                                              SizedBox(height: 4,),
-                                              Text(
-                                                fullUserOrder.location[0].location,
-                                                style: TextStyle(
-                                                  color: Color.fromRGBO(0, 0, 0, 0.87),
-                                                  fontFamily: "Inter",
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 16
-                                                ),
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                        Container(
-                                          height: 68,
-                                          alignment: Alignment.center,
-                                          decoration: const BoxDecoration(
-                                            border:Border(
-                                              bottom: BorderSide(
-                                                color: Color.fromRGBO(245, 245, 245, 1),
-                                                width: 1,
-                                                style: BorderStyle.solid
-                                              )
+                                              child: SvgPicture.asset("assets/svg/userSiluete.svg"),
+                                            ),
+                                            SizedBox(height: 8,),
+                                            Text(
+                                              "You don't have travel companions yet\nfor a joint ride",
+                                              textAlign: TextAlign.center,
+                                              style: TextStyle(
+                                                color: Color.fromRGBO(0, 0, 0, 0.6),
+                                                fontFamily: "SF",
+                                                fontWeight: FontWeight.w400,
+                                                fontSize: 14
+                                              ),
                                             )
-                                          ),
-                                          child: Column(
-                                            children: [
-                                               Text(
-                                                "Колличество мест",
-                                                style: TextStyle(
-                                                  color: Color.fromRGBO(0, 0, 0, 0.87),
-                                                  fontFamily: "Inter",
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 14
-                                                ),
-                                              ),
-                                              SizedBox(height: 4,),
-                                              Text(
-                                                fullUserOrder.seatsInfo.total.toString(),
-                                                style: TextStyle(
-                                                  color: Color.fromRGBO(0, 0, 0, 0.87),
-                                                  fontFamily: "Inter",
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 16
-                                                ),
-                                              )
                                             ],
                                           ),
-                                        ),
-                                        Container(
-                                          height: 68,
-                                          alignment: Alignment.center,
-                                          decoration: const BoxDecoration(
-                                            border:Border(
-                                              bottom: BorderSide(
-                                                color: Color.fromRGBO(245, 245, 245, 1),
-                                                width: 1,
-                                                style: BorderStyle.solid
+                                        )
+                                        : Row(
+                                          children: [
+                                              for (int i = 0; i < fullUserOrder.travelers.length; i++) 
+                                              Padding(
+                                                padding: const EdgeInsets.only(right: 10),
+                                                child:  Column( children: [
+                                                      InkWell(
+                                                        onTap: () {
+                                                          openModalDeleteUser(fullUserOrder.travelers[i].nickname,fullUserOrder.travelers[i].userId);
+                                                        },
+                                                        child: Stack(
+                                                          children: [
+                                                            Container(
+                                                              margin: EdgeInsets.all(3),
+                                                                                                          width: 40,
+                                                                                                          height: 40,
+                                                                                                          alignment: Alignment.center,
+                                                                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(20),
+                                                            color: ColorUtils.stringToColor(fullUserOrder.travelers[i].nickname)
+                                                                                                          ),
+                                                                                                          child: Text(
+                                                            fullUserOrder.travelers[i].nickname[0],
+                                                            style: TextStyle(
+                                                              fontFamily: "SF",
+                                                              fontSize: 25,
+                                                              
+                                                            ),
+                                                                                                          ),
+                                                                                                           ),
+                                                         Positioned(
+                                                        top: 0,
+                                                        right: 0,
+                                                        child: Icon(
+                                                          Icons.cancel,
+                                                          size: 15,
+                                                          color: Colors.red,
+                                                          ),
+                                                                                                          )
+                                                          ],
+                                                        ),
+                                                      ),
+                                                                                              Column(
+                                                    children: [
+                                                      Text(
+                                                        fullUserOrder.travelers[i].nickname,
+                                                        textAlign: TextAlign.center,
+                                                      )
+                                                    ],
+                                                                                              )
+                                                    ],),
+                                               
                                               )
-                                            )
-                                          ),
-                                          child: Column(
-                                            children: [
-                                               Text(
-                                                "Точка сбора",
-                                                style: TextStyle(
-                                                  color: Color.fromRGBO(0, 0, 0, 0.87),
-                                                  fontFamily: "Inter",
-                                                  fontWeight: FontWeight.w400,
-                                                  fontSize: 14
-                                                ),
-                                              ),
-                                              SizedBox(height: 4,),
-                                              Text(
-                                                fullUserOrder.location[0].location,
-                                                style: TextStyle(
-                                                  color: Color.fromRGBO(0, 0, 0, 0.87),
-                                                  fontFamily: "Inter",
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 16
-                                                ),
-                                              )
-                                            ],
-                                          ),
+                                            
+                                          ],
                                         )
                                       ],
                                     ),
                                   )
-                          ],
+                                  :SizedBox.shrink(),
+                                  SizedBox(height: 24,),
+                                  GestureDetector(
+                                    onTapDown: (details)=>_launchUniversalLinkIos(_initialCameraPosition.target.latitude,_initialCameraPosition.target.longitude),
+                                          
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(horizontal: 16,vertical: 12),
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: Colors.white
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            "Start point on the map",
+                                            style: TextStyle(
+                                                  color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                  fontFamily: "SF",
+                                                  fontWeight: FontWeight.w700,
+                                                  fontSize: 16
+                                                ),
+                                          ),
+                                          SizedBox(height: 12,),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              borderRadius: BorderRadius.circular(18)
+                                            ),
+                                            height: 140,
+                                            child: Stack(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(18),
+                                                  child: GoogleMap(
+                                                    rotateGesturesEnabled: false,
+                                                    initialCameraPosition: _initialCameraPosition,
+                                                    scrollGesturesEnabled: false,
+                                                    myLocationButtonEnabled:false,
+                                                    
+                                                    ),
+                                                ),
+                                                  Center(
+                                                    child: SvgPicture.asset("assets/svg/geo.svg"),
+                                                  )
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(height: 12,)
+                                  ,                                    Container(
+                                            alignment: Alignment.center,
+                                            child: Text(
+                                              fullUserOrder.location[0].location,
+                                              style: TextStyle(
+                                                    color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                    fontFamily: "SF",
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14
+                                                  ),
+                                            ),
+                                          ),
+                                          
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 24,),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 16,vertical: 12),
+                                          decoration: BoxDecoration(
+                                            borderRadius: BorderRadius.circular(12),
+                                            color: Colors.white
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                "Ride details",
+                                                style: TextStyle(
+                                                  color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                  fontFamily: "SF",
+                                                  fontWeight: FontWeight.w500,
+                                                  fontSize: 16
+                                                ),
+                                              ),
+                                              SizedBox(height: 12,),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(vertical: 12),
+                                                alignment: Alignment.centerLeft,
+                                                decoration: const BoxDecoration(
+                                                  border:Border(
+                                                    bottom: BorderSide(
+                                                      color: Color.fromRGBO(245, 245, 245, 1),
+                                                      width: 1,
+                                                      style: BorderStyle.solid
+                                                    )
+                                                  )
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                     Text(
+                                                      "Start point",
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w400,
+                                                        fontSize: 14
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4,),
+                                                    Text(
+                                                      fullUserOrder.location[0].location,
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                                 Container(
+                                                padding: EdgeInsets.symmetric(vertical: 12),
+                                                alignment: Alignment.centerLeft,
+                                                decoration: const BoxDecoration(
+                                                  border:Border(
+                                                    bottom: BorderSide(
+                                                      color: Color.fromRGBO(245, 245, 245, 1),
+                                                      width: 1,
+                                                      style: BorderStyle.solid
+                                                    )
+                                                  )
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                     Text(
+                                                      "End point",
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w400,
+                                                        fontSize: 14
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4,),
+                                                    Text(
+                                                      fullUserOrder.location[1].location,
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                              Container(
+                                                padding: EdgeInsets.symmetric(vertical: 12),
+                                                alignment: Alignment.centerLeft,
+                                                decoration: const BoxDecoration(
+                                                  border:Border(
+                                                    bottom: BorderSide(
+                                                      color: Color.fromRGBO(245, 245, 245, 1),
+                                                      width: 1,
+                                                      style: BorderStyle.solid
+                                                    )
+                                                  )
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                     Text(
+                                                      "Number of places",
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w400,
+                                                        fontSize: 14
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4,),
+                                                    Text(
+                                                      fullUserOrder.seatsInfo.total.toString(),
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),  Container(
+                                                padding: EdgeInsets.symmetric(vertical: 12),
+                                                alignment: Alignment.centerLeft,
+                                                decoration: const BoxDecoration(
+                                                  border:Border(
+                                                    bottom: BorderSide(
+                                                      color: Color.fromRGBO(245, 245, 245, 1),
+                                                      width: 1,
+                                                      style: BorderStyle.solid
+                                                    )
+                                                  )
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                     Text(
+                                                      "Car",
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w400,
+                                                        fontSize: 14
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4,),
+                                                    Text(
+                                                      fullUserOrder.automobile.manufacturer+" "+fullUserOrder.automobile.model+" ("+fullUserOrder.automobile.year+")",
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              ),
+                                                 Container(
+                                                padding: EdgeInsets.symmetric(vertical: 12),
+                                                alignment: Alignment.centerLeft,
+                                                decoration: const BoxDecoration(
+                                                  border:Border(
+                                                    bottom: BorderSide(
+                                                      color: Color.fromRGBO(245, 245, 245, 1),
+                                                      width: 1,
+                                                      style: BorderStyle.solid
+                                                    )
+                                                  )
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                     Text(
+                                                      "Comment on the ride",
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w400,
+                                                        fontSize: 14
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 4,),
+                                                    Text(
+                                                      fullUserOrder.comment??"",
+                                                      style: TextStyle(
+                                                        color: Color.fromRGBO(0, 0, 0, 0.87),
+                                                        fontFamily: "Inter",
+                                                        fontWeight: FontWeight.w500,
+                                                        fontSize: 16
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              )
+                                           
+                                            ],
+                                          ),
+                                        ),
+                                       
+                                ],
+                              ),
+                            
+                          
                         ),
-                      
-                    
+                        SizedBox(height: 24,),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: InkWell(
+                            onTap: ()async {
+                              if(tapBlocked){
+                                return;
+                              }
+                              tapBlocked=true;
+                              if(fullOrderType==FullOrderType.driver){
+                                  Navigator.push(context,
+                               MaterialPageRoute(builder: (context) => CardOrderReduct(
+                                update:update,
+                                orderId:widget.orderId,
+                                carIdInOrder:fullUserOrder.clientAutoId ,
+                                preferences:fullUserOrder.preferences,
+                                seats:fullUserOrder.seatsInfo.total
+                                ),));
+                              }else{
+                                if(fullUserOrder.isBooked){
+                                   
+                                    int chatId=await HttpChats().getChatId(fullUserOrder.orderId,fullUserOrder.driverId!);
+                                    print(chatId);
+                                    Navigator.push(
+                                      context, 
+                                      MaterialPageRoute(builder: (context) => MessagePage(chatId: chatId),)
+                                      );
+                                }else{
+                                  int result= await HttpUserOrder().orderBook(widget.orderId,widget.seats!);
+                                  if(result==0){
+                                    setState(() {
+                                      
+                                    });
+                                  }
+                                }
+                              }
+                              tapBlocked=false;
+                              
+                            },
+                            child: Container(
+                              height: 60,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: brandBlue,
+                                borderRadius: BorderRadius.circular(10)
+                              ),
+                              child: Text(
+                                fullOrderType==FullOrderType.driver
+                                ?"Edit ride"
+                                :fullUserOrder.isBooked?"Contact the driver"
+                                :"Book a ride",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontFamily: "Inter",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 12,),
+                        fullOrderType==FullOrderType.driver||fullUserOrder.isBooked? Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: InkWell(
+                            onTap: () {
+                              showDialog(
+                                context: context, 
+                                builder: (context) {
+                                  return Dialog(
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(14)
+                                    ),
+                                    child: AppPopup(warning: false, title: "Cancel ride?", description: "Do you really want to\ncancel your ride?", pressYes: ()async{
+                                        int result;
+                                        if(fullOrderType==FullOrderType.user){
+                                           result = await HttpUserOrder().orderCancel(widget.orderId);
+                                        }else{
+                                          result=await HttpUserOrder().orderDriverCancel(widget.orderId, "");
+                                        }
+                                    if(result==0){
+                                      setState(() {
+                                        Navigator.pop(context);
+                                      });
+                                    }
+                                    }, pressNo: ()=>Navigator.pop(context)),
+                                    );
+                                  
+                                },
+                                );
+                            },
+                            child: Container(
+                              height: 60,
+                              width: double.infinity,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: Color.fromRGBO(242, 243, 245, 1),
+                                borderRadius: BorderRadius.circular(10)
+                              ),
+                              child: Text(
+                                fullOrderType==FullOrderType.driver 
+                                ?"Cancel ride"
+                                :"Cancel booking",
+                                style: TextStyle(
+                                  color: brandBlue,
+                                  fontFamily: "Inter",
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600
+                                ),
+                              ),
+                            ),
+                          ),
+                        )
+                        :SizedBox.shrink(),
+                        SizedBox(height: 30,)
+                      ],
+                    ),
                   ),
                 );
               },
@@ -483,15 +865,19 @@ class DashedLineWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    int count=windowWidth ~/20;
+    //18*C+190=windowWidth N=10
+    double w=(windowWidth-95)/18;
+
+    //int count=windowWidth ~/20;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5),
+      padding: const EdgeInsets.only(left: 5),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        
         children: [
-            for (int i = 0; i < count; i++) Container(
-                width:15,
+            for (int i = 0; i < 18; i++) Container(
+                width:w,
                 height: 1.5,
+                margin: EdgeInsets.only(right: 5),
                 decoration: BoxDecoration(
     
                   color: brandBlue,

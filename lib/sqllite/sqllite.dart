@@ -59,43 +59,43 @@ class DataBaseApp{
   }
 
 
-  Future<List<AppMessage>> getMessagesByChatId(int chatId) async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'messages',
-      where: 'chatId = ?',
-      whereArgs: [chatId],
-    );
+  // Future<List<AppMessage>> getMessagesByChatId(int chatId) async {
+  //   final db = await database;
+  //   final List<Map<String, dynamic>> maps = await db.query(
+  //     'messages',
+  //     where: 'chatId = ?',
+  //     whereArgs: [chatId],
+  //   );
 
-    return List.generate(
-      maps.length,
-      (index) => AppMessage(
-        uuid: maps[index]['uuid'],
-        text: maps[index]['text'],
-        status: maps[index]['status'], 
-        chatId: maps[index]["chatId"],
-        date: maps[index]["date"]
-      ),
-    );
-  }
+  //   return List.generate(
+  //     maps.length,
+  //     (index) => AppMessage(
+  //       uuid: maps[index]['uuid'],
+  //       text: maps[index]['text'],
+  //       status: maps[index]['status'], 
+  //       chatId: maps[index]["chatId"],
+  //       date: maps[index]["date"]
+  //     ),
+  //   );
+  // }
 
-  Future<List<AppMessage>> getMessages() async {
-    final db = await database;
-    final List<Map<String, dynamic>> maps = await db.query(
-      'messages',
-    );
+  // Future<List<AppMessage>> getMessages() async {
+  //   final db = await database;
+  //   final List<Map<String, dynamic>> maps = await db.query(
+  //     'messages',
+  //   );
 
-    return List.generate(
-      maps.length,
-      (index) => AppMessage(
-        uuid: maps[index]['uuid'],
-        text: maps[index]['text'],
-        status: maps[index]['status'], 
-        chatId: maps[index]["chatId"],
-        date: maps[index]["date"]
-      ),
-    );
-  }
+  //   return List.generate(
+  //     maps.length,
+  //     (index) => AppMessage(
+  //       uuid: maps[index]['uuid'],
+  //       text: maps[index]['text'],
+  //       status: maps[index]['status'], 
+  //       chatId: maps[index]["chatId"],
+  //       date: maps[index]["date"]
+  //     ),
+  //   );
+  // }
 
 
   Future<void> insertMessage(AppMessage message) async {

@@ -9,11 +9,12 @@ import '../../provider/provider.dart';
 
 
 class CardCar extends StatefulWidget{
+  final bool valid;
  final MyEnum types;
  final Function update;
  final String title;
   final CarModel other;
-  const CardCar({required this.other, required this.title, required this.update, required this.types, super.key});
+  const CardCar({required this.valid, required this.other, required this.title, required this.update, required this.types, super.key});
 
   @override
   State<CardCar> createState() => _CardCarState();
@@ -43,18 +44,21 @@ class _CardCarState extends State<CardCar> {
           height: 60,
           width: double.infinity,
           decoration: BoxDecoration(
-            color: categorySelected,
-            borderRadius: BorderRadius.circular(10)
+            color: Color.fromRGBO(237, 238, 243, 1),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: widget.valid?Color.fromRGBO(237, 238, 243, 1):Colors.red
+            )
           ),
           child: Padding(
             padding: const EdgeInsets.only(left: 15),
             child: Text(
-              widget.title.isNotEmpty?widget.title:"Укажите ${typeWindow[widget.types]}",
-              style: const TextStyle(
-                fontFamily: "Inter",
-                fontSize: 13,
+              widget.title.isNotEmpty?widget.title:"Specify ${typeWindow[widget.types]}",
+              style:  TextStyle(
+                fontFamily: "SF",
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Color.fromRGBO(87,87,88,1)
+                color: brandBlack
               ),
             ),
           ),

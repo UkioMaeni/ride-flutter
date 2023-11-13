@@ -1,10 +1,14 @@
 
+import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
 import 'package:flutter_application_1/http/city/city_model.dart';
 import 'package:flutter_application_1/http/city/http_city.dart';
+import 'package:flutter_application_1/http/instanse.dart';
+import 'package:flutter_application_1/http/user/http_user.dart';
 import 'package:flutter_application_1/pages/UI/barNavigation/barNavigation.dart';
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:flutter_application_1/pages/menupages/search/map/map_search.dart';
@@ -49,7 +53,8 @@ class _SearchCitySearch extends State<SearchCitySearch> {
     });
     }
   List<AddressComponent> addressComponents=details.result.addressComponents;
-  print(addressComponents);
+  
+  inspect(addressComponents);
   String city="";
   String state="";
   String stateShort="";
@@ -59,7 +64,7 @@ class _SearchCitySearch extends State<SearchCitySearch> {
   addressComponents.forEach((element) {
     List<dynamic> elementInfo=element.types;
     elementInfo.forEach((info) {
-      if(info=="locality"|| info=="administrative_area_level_3"){
+      if((info=="locality"|| info=="administrative_area_level_3")&&city.isEmpty){
           city=element.longName;
       }
       if(info=="street_number"){
@@ -77,15 +82,35 @@ class _SearchCitySearch extends State<SearchCitySearch> {
       }
       });
     });
-    
-      final result=await Dio().get(
+     if(city==""){
+      city=state;
+     }
+     double lat=details.result.geometry?.location.lat??0;
+     double lng=details.result.geometry?.location.lng??0;
+     bool? perm=await HttpUser().getPermission("location");
+          if(perm!=null&&!perm){
+            
+            return;
+          }
+         if(perm==null){
+           
+          return;
+         }
+        print("steeep");
+        print("$state,$city,$lat,$lng");
+        final intr=Dio();
+        intr.interceptors.add(AuthInterceptor(intr));
+      final result= await intr.get(
         "http://31.184.254.86:9099/api/v1/city",
         queryParameters: {
           "state":state,
           "city":city,
+          "latityde":lat,
+          "longitude":lng
         }
         
         );
+        print(result.data);
         DataCreate newDate=DataCreate(
       city, 
       state, 
@@ -109,18 +134,26 @@ class _SearchCitySearch extends State<SearchCitySearch> {
   bool focus = false;
    void onTextChanged(String text) async{
         if (text.isNotEmpty) {
-          PlacesAutocompleteResponse response = await places.autocomplete(
+        bool? perm=await HttpUser().getPermission("location");
+          if(perm!=null&&!perm){
+            
+            return;
+          }
+         if(perm==null){
+          
+          return;
+         }
+         PlacesAutocompleteResponse response = await places.autocomplete(
     text,
-    language: "us", // Опционально, язык результатов,
+    language: "us", 
     types: ["postal_code","sublocality","administrative_area_level_3","locality","street_address"],
-    components: [Component(Component.country, "us")], // Опционально, ограничение результатов по стране
+    components: [Component(Component.country, "us")], 
   );
-  //print(response.predictions[0].terms[0].toJson());
-    setState(() {
+  setState(() {
       _cityList=response.predictions;
     });
           
-          
+          inspect(response);
           
         } else {
           setState(() {

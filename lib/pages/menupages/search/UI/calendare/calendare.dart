@@ -49,7 +49,15 @@ class _CalendareState extends State<Calendare> {
                       "assets/svg/calendare.svg"
                       ),
             ),
-            Text(widget.date.day==DateTime.now().day?"Today":DateFormat("dd MMMM yyyy").format(widget.date))
+            Text(
+              widget.date.day==DateTime.now().day?"Today":DateFormat("dd MMMM yyyy").format(widget.date),
+              style: TextStyle(
+                fontFamily: "SF",
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: brandBlack
+              ),
+              )
           ],
         ),
       ),

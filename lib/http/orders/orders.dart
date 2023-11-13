@@ -10,6 +10,7 @@ const baseUrl="http://31.184.254.86:9099/api/v1/order";
 const baseUrlDriver="http://31.184.254.86:9099/api/v1/driver/orders";
 const baseUrlFindOrder="http://31.184.254.86:9099/api/v1/orders/find";
 const baseUrlFindOrderInId="http://31.184.254.86:9099/api/v1/order";
+const baseAppUrl="http://31.184.254.86:9099/api/v1/";
 class UserOrder{
   int clientAutoId; 
   RideInfo rideInfo;
@@ -68,8 +69,10 @@ class UserOrder{
 class RideInfo{
   double price;
   int numberOfSeats;
+  String comment;
   Preferences preferences;
   RideInfo({
+    required this.comment,
     required this.price,
     required this.numberOfSeats,
     required this.preferences
@@ -77,6 +80,7 @@ class RideInfo{
 
   Map<String,dynamic> toJson(){
     return {
+      "comment":comment,
       "price":price,
       "number_of_seats":numberOfSeats,
       "preferences":preferences.toJson()
@@ -119,10 +123,34 @@ class DriverOrder{
     required this.preferences
   });
 }
+
+class Automobile {
+
+  String model;
+  String manufacturer;
+  String number;
+  String year;
+  Automobile({
+    required this.model,
+    required this.manufacturer,
+    required this.number,
+    required this.year
+  });
+}
+
 class UserOrderFullInformation extends DriverOrder{
   List<Travelers> travelers;
   List<Location> location;
+  String? comment;
+  bool isBooked;
+  int? driverId;
+  bool isDriver;
+  Automobile automobile;
   UserOrderFullInformation({
+    required this.isDriver,
+    required this.automobile,
+    this.driverId,
+    this.comment,
     required super.orderId, 
     required super.clientAutoId, 
     required super.departureTime, 
@@ -134,7 +162,8 @@ class UserOrderFullInformation extends DriverOrder{
     required super.price, 
     required super.preferences,
     required this.travelers,
-    required this.location
+    required this.location,
+    required this.isBooked
     });
   
 }
@@ -157,6 +186,8 @@ class PointLocation{
   });
 }
 class DriverOrderFind{
+  int? clientReservedSeats;
+  int bookedStatus;
   int orderId;
   int driverId;
   String driverCar;
@@ -168,6 +199,8 @@ class DriverOrderFind{
   Preferences preferences;
   SeatsInfo seatsInfo;
   DriverOrderFind({
+    this.clientReservedSeats,
+    required this.bookedStatus,
     required this.orderId,
     required this.driverId,
     required this.driverCar,
@@ -180,6 +213,11 @@ class DriverOrderFind{
     required this.seatsInfo
   });
 }
+
+
+
+
+
 class HttpUserOrder{
  
   Dio dio=Dio();
@@ -228,9 +266,13 @@ class HttpUserOrder{
     );
     print("respon");
     print(response.data);
+    if(response.data["data"]==null){
+      return [];
+    }
     List<DriverOrder> driverOrder=[];
     List<dynamic> orders=response.data["data"];
     driverOrder=orders.map((el) =>DriverOrder(
+      
       orderId: el["order_id"], 
       clientAutoId: el["client_auto_id"], 
       departureTime: el["departure_time"],
@@ -262,8 +304,6 @@ class HttpUserOrder{
   Future<List<DriverOrderFind>> findUserOrder(int startPoint,int endPoint,int numberOfSeats,int date)async{
     String access= await TokenStorage().getToken("access");
     if(access=="no") return [];
-    print(access);
-    print(DateTime.fromMillisecondsSinceEpoch(date*1000).toString());
     try {
       Response response = await dio.get(
     baseUrlFindOrder,
@@ -288,6 +328,7 @@ class HttpUserOrder{
      
     List<dynamic> orders=response.data["data"];
     driverOrder=orders.map((el) =>DriverOrderFind(
+      bookedStatus: el["booked_status"]??-1,
       orderId: el["order_id"], 
       driverId: el["driver_id"],
       driverCar: el["driver_car"], 
@@ -317,19 +358,84 @@ class HttpUserOrder{
         animals: el["preference"]["animals"]
         )
       )).toList();
-       print(driverOrder);
     return driverOrder;
     } catch (e) {
-      print(e);
       print(e);
       return [];
     }
   }
 
+
+ Future<List<DriverOrderFind>> findUserOrderByOtherCity(int startPoint,int endPoint,int numberOfSeats,int date)async{
+    String access= await TokenStorage().getToken("access");
+    if(access=="no") return [];
+    try {
+      Response response = await dio.get(
+    baseUrlFindOrder+"-nearest",
+    queryParameters: {
+      "start_point":startPoint,
+      "end_point":endPoint,
+      "number_of_seats":numberOfSeats,
+      "date":date
+
+    },
+    options: Options(
+      headers: {
+        "Authorization":"Bearer $access"
+      }
+    )
+    );
+
+    List<DriverOrderFind> driverOrder=[];
+    print("OTHER");
+    inspect(response.data); 
+    if (response.data["data"]==null)
+      return [];
+     
+    List<dynamic> orders=response.data["data"];
+    driverOrder=orders.map((el) =>DriverOrderFind(
+      bookedStatus: el["booked_status"]??-1,
+      orderId: el["order_id"], 
+      driverId: el["driver_id"],
+      driverCar: el["driver_car"], 
+      departureTime: el["departure_time"],
+      nickname: el["driver_nickname"], 
+      startPoint:PointLocation(
+        city: el["start_point"]["city"],
+        longitude: el["start_point"]["longitude"],
+        latitude: el["start_point"]["latitude"]
+      ), 
+      endPoint:PointLocation(
+        city: el["end_point"]["city"],
+        longitude: el["end_point"]["longitude"],
+        latitude: el["end_point"]["latitude"]
+      ),  
+      seatsInfo: SeatsInfo(
+        total: el["seats"]["total"], 
+        reserved: el["seats"]["reserved"], 
+        free: el["seats"]["free"]
+      ), 
+      price:el["order_price"]+0.0, 
+      
+      preferences: Preferences(
+        smoking: el["preference"]["smoking"], 
+        luggage: el["preference"]["luggage"], 
+        childCarSeat: el["preference"]["child_car_seat"], 
+        animals: el["preference"]["animals"]
+        )
+      )).toList();
+    return driverOrder;
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+
   Future<List<int>> findUserSimilarOrder(int startPoint,int endPoint,int numberOfSeats,int date)async{
     String access= await TokenStorage().getToken("access");
     if(access=="no") return [];
-    print(access);
+    print('similar ${date}');
     try {
       Response response = await dio.get(
     "$baseUrlFindOrder-similar",
@@ -372,7 +478,7 @@ class HttpUserOrder{
       );
       
       Map<String,dynamic> _mapResponse=response.data["data"];
-      
+      inspect(_mapResponse);
       List<dynamic> _locationsResponse=_mapResponse["locations"];
       
      List<Location> _locations= _locationsResponse.map((el){
@@ -404,13 +510,22 @@ class HttpUserOrder{
        
 
      final fullOrderInfo=  UserOrderFullInformation(
+      isDriver: _mapResponse["is_driver"],
+      driverId: _mapResponse["driver_id"],
+      comment: _mapResponse["comment"],
       orderId: _mapResponse["order_id"], 
       clientAutoId: _mapResponse["client_auto_id"], 
       departureTime: _mapResponse["departure_time"],
       nickname: _mapResponse["nickname"], 
       status: _mapResponse["status"], 
       startCountryName: "", 
-      endCountryName: "", 
+      endCountryName: "",
+      automobile: Automobile(
+        model: _mapResponse["automobile"]["model"], 
+        manufacturer: _mapResponse["automobile"]["manufacturer"], 
+        number: _mapResponse["automobile"]["number"], 
+        year: _mapResponse["automobile"]["year"]
+        ), 
       seatsInfo: SeatsInfo(
         total: _mapResponse["seats_info"]["total"], 
         reserved: _mapResponse["seats_info"]["reserved"], 
@@ -424,7 +539,8 @@ class HttpUserOrder{
         animals: _mapResponse["preference"]["animals"]
         ),
       location: _locations,
-      travelers: _travelers
+      travelers: _travelers,
+      isBooked: _mapResponse["is_booked"]
       );
       return fullOrderInfo;
     } catch (e) {
@@ -432,5 +548,178 @@ class HttpUserOrder{
       return null;
      
     }
+  }
+
+  Future<int> orderBook(int orderId,int seats )async{
+    String access= await TokenStorage().getToken("access");
+    try {
+      Response response=await dio.post(
+        baseAppUrl+"order/book",
+        data: {
+          "order_id":orderId,
+          "number_of_reserved_seats":seats
+        },
+        options: Options(
+          headers: {
+            "Authorization":"Bearer $access"
+          }
+        )
+      );
+      print(response.data);
+      return 0;
+    } catch (e) {
+      return 1;
+    }
+  }
+
+  Future<int> orderCancel(int orderId)async{
+    String access= await TokenStorage().getToken("access");
+    try {
+      Response response=await dio.put(
+        baseAppUrl+"order-app/cancel/"+orderId.toString(),
+        options: Options(
+          headers: {
+            "Authorization":"Bearer $access"
+          }
+        )
+      );
+      print(response.data);
+      return 0;
+    } catch (e) {
+      return 1;
+    }
+  }
+    Future<int> orderDriverCancel(int orderId,String comment)async{
+    String access= await TokenStorage().getToken("access");
+    try {
+      Response response=await dio.put(
+        baseAppUrl+"order/cancel",
+        options: Options(
+          headers: {
+            "Authorization":"Bearer $access"
+          },
+         
+        ),
+         data:{
+          "order_id":orderId,
+          "comment":""
+         }
+      );
+      print("cancel");
+      print(response.data);
+      return 0;
+    } catch (e) {
+      print(e);
+      return 1;
+    }
+  }
+
+  Future<List<DriverOrderFind>> myTrips()async{
+    String access= await TokenStorage().getToken("access");
+    try {
+      Response response=await dio.get(
+        baseAppUrl+"client/orders/booked",
+        options: Options(
+          headers: {
+            "Authorization":"Bearer $access"
+          }
+        )
+      );
+      print(response.data);
+      if(response.data["data"]==null){
+        return [];
+      }
+     
+    List<DriverOrderFind> driverOrder=[];
+    List<dynamic> orders=response.data["data"];
+    driverOrder=orders.map((el) =>DriverOrderFind(
+      clientReservedSeats: el["client_reserved_seats"],
+      bookedStatus: el["booked_status"],
+      orderId: el["order_id"], 
+      driverId: el["driver_id"],
+      driverCar: el["driver_car"]??"", 
+      departureTime: el["departure_time"],
+      nickname: el["driver_nickname"]??"error", 
+      startPoint:PointLocation(
+        city: el["start_point"]["city"],
+        longitude: el["start_point"]["longitude"],
+        latitude: el["start_point"]["latitude"]
+      ), 
+      endPoint:PointLocation(
+        city: el["end_point"]["city"],
+        longitude: el["end_point"]["longitude"],
+        latitude: el["end_point"]["latitude"]
+      ),  
+      seatsInfo: SeatsInfo(
+        total: el["seats"]["total"], 
+        reserved: el["seats"]["reserved"], 
+        free: el["seats"]["free"]
+      ), 
+      price:el["order_price"]+0.0, 
+      
+      preferences: Preferences(
+        smoking: el["preference"]["smoking"], 
+        luggage: el["preference"]["luggage"], 
+        childCarSeat: el["preference"]["child_car_seat"], 
+        animals: el["preference"]["animals"]
+        )
+      )).toList();
+      
+      return driverOrder;
+      
+    } catch (e) {
+      print(e);
+      return [];
+    }
+  }
+
+  Future<int> editDriverOrder(int carId, int seats,String comment,Preferences preferences,int orderId)async{
+    String access= await TokenStorage().getToken("access");
+    try {
+
+      Response response=await dio.put(
+        "${baseAppUrl}order/$orderId",
+        data: {
+          "car_id":carId,
+          "number_of_seats":seats,
+          "comment":comment,
+          "preference":preferences.toJson()
+        },
+        options: Options(
+          headers: {
+            "Authorization":"Bearer $access"
+          }
+        )
+      );
+      print(response.data);
+      return 0;
+    } catch (e) {
+      print(e);
+      return 1;      
+    }
+  }
+
+  Future<int> deleteUserInOrder(int orderId,int clientId)async{
+    String access= await TokenStorage().getToken("access");
+        try {
+          Response response=await dio.delete(
+        "${baseAppUrl}order/client",
+        data: {
+          "order_id":orderId,
+          "client_id":clientId,
+          "comment":"",
+        },
+        options: Options(
+          headers: {
+            "Authorization":"Bearer $access"
+          }
+        )
+      );
+      print(response.data);
+      return 0;
+        } catch (e) {
+          print(e);
+          return -1;
+        }
   }
 }

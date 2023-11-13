@@ -22,7 +22,6 @@ class _OrderPageState extends State<OrderPage> {
         context,
         MaterialPageRoute(builder: (context) => MessagePage(
           chatId: chatId,
-          userId: widget.clientId,
         ),)
       );
     }
@@ -44,7 +43,7 @@ class _OrderPageState extends State<OrderPage> {
             height: 50,
             alignment: Alignment.center,
             color: brandBlue,
-            child: Text("связаться с водителем"),
+            child: Text("Contact the driver"),
           ),
         ),
       ),

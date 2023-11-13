@@ -17,54 +17,21 @@ final int defaultcountPass=4;
 
 
 class AutoTitle extends StatefulWidget{
-  final Function side;
   const AutoTitle({required this.side, super.key});
+
+  final Function side;
 
   @override
   State<AutoTitle> createState() => _AutoTitleState();
 }
 
 class _AutoTitleState extends State<AutoTitle> {
-
-
-
-  late TextEditingController _yearController;
-  late TextEditingController _numberController;
-
-
   CarData car = CarData(CarModel(-1,""),CarModel(-1,"") , "", 0);
 
-  updateModel(CarModel newModel){
-    print(newModel.id);
-      setState(() {
-        car.model=newModel;
-      });
-  }
-  updateName(CarModel newName){
-    print(newName.id);
-      setState(() {
-        car.name=newName;
-      });
-  }
-  updateCarNumber(String newNumber){
-      setState(() {
-        car.carNumber=newNumber;
-      });
-  }
-  updateYear(int newYear){
-      setState(() {
-        car.year=newYear;
-      });
-  }
-@override
-  void initState() {
-    _yearController =TextEditingController();
-  _numberController =TextEditingController();
-    super.initState();
-  }
+  
 
-
-
+  late TextEditingController _numberController;
+  late TextEditingController _yearController;
 
   @override
   void dispose() {
@@ -73,97 +40,215 @@ class _AutoTitleState extends State<AutoTitle> {
     super.dispose();
   }
 
+@override
+  void initState() {
+    _yearController =TextEditingController();
+  _numberController =TextEditingController();
+    super.initState();
+  }
 
+  updateModel(CarModel newModel){
+    print(newModel.id);
+      setState(() {
+        car.model=newModel;
+      });
+  }
+
+  updateName(CarModel newName){
+    print(newName.id);
+      setState(() {
+        car.name=newName;
+      });
+  }
+
+  updateCarNumber(String newNumber){
+      setState(() {
+        car.carNumber=newNumber;
+      });
+  }
+
+  updateYear(int newYear){
+      setState(() {
+        car.year=newYear;
+      });
+  }
+bool clicked=false;
+  bool validManufacturer=true;
+  bool validModel=true; 
+  bool validNumber=true;
+  bool validYear=true;
   @override
   Widget build(BuildContext context) {
+
+  //validation
+
+
+checked(){
+     if(car.name.name.isEmpty&&clicked){
+      validManufacturer=false;
+    }else{
+      validManufacturer=true;
+    }
+     if(car.model.name.isEmpty&&clicked){
+        validModel=false;
+    }else{
+      validModel=true;
+    }
+     if(_numberController.text.isEmpty&&clicked){
+        validNumber=false;
+    }else{
+      validNumber=true;
+    }
+     if(_yearController.text.isEmpty&&clicked){
+     
+        validYear=false;
+    }else{
+      validYear=true;
+    }
+}
+   
+checked();
+print("$validManufacturer nnnumbeer");
+    void checkValid(){
+      clicked=true;
+      checked();
+      
+   if(validManufacturer&&validModel&&validNumber&&validYear){
+    print("CONTACT");
+      updateCarNumber(_numberController.text);
+                                               updateYear(int.parse(_yearController.text));       
+                                               storeApp.setCar(car);
+
+                                               Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DopOptions(side: widget.side, count: defaultcountPass,preferences: defaultPreferences,carId: -1,)),
+                                );
+    }
+    setState(() {
+      
+    });
+ }
+  
     return Padding(
           padding: const EdgeInsets.only(top: 20,left: 15,right: 15),
           child: Column(
+            
             children: [
-              BarNavigation(back: true, title: "Какой авто"),
-              CardCar(update: updateName, types: MyEnum.name,title:car.name.name,other: CarModel(-1, "_"),),
-              CardCar(update: updateModel, types: MyEnum.model,title:car.model.name,other: car.name,),
-              Padding(
-                padding: const EdgeInsets.only(bottom: 12),
-                child: Container(
+              BarNavigation(back: true, title: "Car selection"),
+              Expanded(
+                child: Stack(
+                  alignment: Alignment.bottomCenter,
+                  children: [
+                    Column(
+                      children: [
+                          CardCar(update: updateName, types: MyEnum.name,title:car.name.name,other: CarModel(-1, "_"),valid:validManufacturer),
+                CardCar(update: updateModel, types: MyEnum.model,title:car.model.name,other: car.name,valid:validModel),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    alignment: Alignment.center,
+                    
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    color: categorySelected,
+                    border: Border.all(
+                        color: validNumber?Color.fromRGBO(237, 238, 243, 1):Colors.red
+                      )
+                  ),
+                  child: TextField(
+                    controller: _numberController,
+                    style: TextStyle(
+                      fontFamily: "SF",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: brandBlack
+                    ),
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      hintText: "State number of the car",
+                      counterText: ""
+                    ),
+                    inputFormatters: [
+                      UpperCaseTextFormatter()
+                    ],
+                      maxLength: 10,
+                      textCapitalization: TextCapitalization.sentences
+                  ),
+                            ),
+                ),
+                Container(
                   padding: const EdgeInsets.symmetric(horizontal: 15),
                   alignment: Alignment.center,
                 height: 60,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
-                  color: categorySelected
+                  color: categorySelected,
+                   border: Border.all(
+                        color: validYear?Color.fromRGBO(237, 238, 243, 1):Colors.red
+                      )
                 ),
                 child: TextField(
-                  controller: _numberController,
+                  controller: _yearController,
+                   style: TextStyle(
+                      fontFamily: "SF",
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: brandBlack
+                    ),
                   decoration: const InputDecoration(
                     border: InputBorder.none,
-                    hintText: "Номер",
+                    hintText: "Year of manufacture of the car",
                     counterText: ""
                   ),
-                  inputFormatters: [
-                    UpperCaseTextFormatter()
-                  ],
-                    maxLength: 10,
-                    textCapitalization: TextCapitalization.sentences
+                    keyboardType: TextInputType.number,
+                    inputFormatters: <TextInputFormatter>[
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
+                    ],
+                    maxLength: 4,
                 ),
                           ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                alignment: Alignment.center,
-              height: 60,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: categorySelected
-              ),
-              child: TextField(
-                controller: _yearController,
-                decoration: const InputDecoration(
-                  border: InputBorder.none,
-                  hintText: "Год выпуска",
-                  counterText: ""
-                ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                  ],
-                  maxLength: 4,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.only(top:12),
-              child: InkWell(
-                onTap: (){
-                 updateCarNumber(_numberController.text);
-                 updateYear(int.parse(_yearController.text));       
-                 storeApp.setCar(car);
-                 Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DopOptions(side: widget.side, count: defaultcountPass,preferences: defaultPreferences,carId: -1,)),
-                          );
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  width: double.infinity,
-                  height: 60,
-                  decoration: BoxDecoration(
-                    color:car.name.id!=-1&&car.model.id!=-1&&_numberController.text.isNotEmpty? const Color.fromRGBO(64,123,255,1) : const Color.fromRGBO(177,177,177,0.5),
-                    borderRadius: BorderRadius.circular(10)
-                    
-                  ),
-                  child: Text(
-                    "Продолжить",
-                    style: TextStyle(
-                      color:car.name.id!=-1&&car.model.id!=-1&&_numberController.text.isNotEmpty? const Color.fromRGBO(255,255,255,1):const Color.fromRGBO(255,255,255,0.5),
-                      fontFamily: "Inter",
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600
+                      ],
                     ),
-                  ),
+                          Positioned(
+                            bottom: 32,
+                            left: 0,
+                            right: 0,
+                            child: InkWell(
+                                              onTap: (){
+                                                checkValid();
+                                               
+                                              },
+                                              child: Container(
+                                                alignment: Alignment.center,
+                                                width: double.infinity,
+                                                height: 60,
+                                                decoration: BoxDecoration(
+                                                  color:brandBlue,
+                                                  borderRadius: BorderRadius.circular(10)
+                                                  
+                                                ),
+                                                child: Text(
+                                                  "Continue",
+                                                  style: TextStyle(
+                            color:Colors.white,
+                            fontFamily: "Inter",
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600
+                                                  ),
+                                                ),
+                                              ),
+                                            
+                              
+                                          ),
+                          )
+                  ],
                 ),
               ),
-            )
+              
+          
             ],
           ),
         );

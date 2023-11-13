@@ -29,24 +29,88 @@ class _ResultSearchState extends State<ResultSearch> {
 
   DateFormat dateFormat = DateFormat('d MMMM');
   late int currentUnixDate; 
- 
+  Widget other=SizedBox.shrink();
   int currentIndex=0;
   late Future<List<int>> _futureSimilar;
   List<int> similarOrder=[];
+
+  List<dynamic> listOrder=[];
+  
+  void getOtherOrder(int unixDate)async{
+    
+    List<DriverOrderFind> otherOrder = await  HttpUserOrder().findUserOrderByOtherCity(
+                     widget.from.cityId!,
+                     widget.to.cityId!,
+                     widget.count,
+                     unixDate
+                    );
+                    print(otherOrder.length);
+                    if(otherOrder.length>0){
+                      setState(() {
+                        listOrder.add(Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text("Ride on other cities",textAlign: TextAlign.center,style: TextStyle(
+                            fontSize: 20,
+                            fontFamily: "SF"
+                          ),),
+                        ));
+                        listOrder.add(Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 31),
+                          child: Image.asset("assets/image/otherCity1.png",),
+                        ));
+                        listOrder.addAll(otherOrder);
+                       
+                      });
+                    }
+  }
+
+  void getOrder(int unixDate)async{
+        List<DriverOrderFind> otherOrder = await  HttpUserOrder().findUserOrder(
+                     widget.from.cityId!,
+                     widget.to.cityId!,
+                     widget.count,
+                     unixDate
+                    );
+                    if(otherOrder.length>0){
+                      setState(() {
+                        listOrder.insert(0,otherOrder);
+                       
+                      });
+                    }else{
+                      setState(() {
+                        listOrder.insert(0, Column(
+                          children: [
+                            Image.asset("assets/image/emptyOrder.png"),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 30),
+                              child: Text(
+                                    "Unfortunately, the travel companion\nwas not found at this date.\nPlease choose another date\nfrom those suggested above or try later.",
+                                    textAlign: TextAlign.center,
+                                ),
+                            ),
+                          ],
+                        ));
+                       
+                      });
+                    }
+  }
+
   @override
   void initState() {
      
      final date1=widget.date.millisecondsSinceEpoch ~/1000;
-     currentUnixDate=widget.date.timeZoneOffset.inHours*3600+date1;
-   
+     final date2=widget.date.timeZoneOffset.inHours*3600+date1;
+    currentUnixDate=date1;
     similarOrder.add(currentUnixDate);
+    getOrder(date1);
+     getOtherOrder(date1);
     _futureSimilar=HttpUserOrder().findUserSimilarOrder(
                               widget.from.cityId!,
                                 widget.to.cityId!,
                                 widget.count,
-                                currentUnixDate
+                                currentUnixDate-12*60*60*24
                             );
-
+   
     super.initState();
   }
 
@@ -60,12 +124,12 @@ class _ResultSearchState extends State<ResultSearch> {
             toolbarHeight: 0,
             backgroundColor: Colors.white,
             toolbarOpacity: 0,
-            elevation: 1,
+            elevation: 0,
             
         ),
       body: Column(
         children: [
-          BarNavigation(back: true, title: "${widget.from.city} -> ${widget.to.city}"),
+          BarNavigation(back: true, title: "${widget.from.city} - ${widget.to.city}"),
                 Padding(
                   padding: const EdgeInsets.only(left: 7),
                   child: Column(
@@ -74,7 +138,7 @@ class _ResultSearchState extends State<ResultSearch> {
                       const Padding(
                         padding: EdgeInsets.only(left: 8,bottom: 10),
                         child: Text(
-                          "Перевозка другие дни",
+                          "Transportation on other days",
                           style: TextStyle(
                             fontFamily: "SF",
                             fontSize: 14,
@@ -116,13 +180,13 @@ class _ResultSearchState extends State<ResultSearch> {
                               }
                               if(snapshot.hasError){
                                 return Center(
-                                  child: Text("Ошибка")
+                                  child: Text("error")
                                 );
                               }
                               List<int> similar=[widget.date.millisecondsSinceEpoch ~/1000];
                               similar.addAll(snapshot.data!);
                              
-                              print(similar);
+                              
                               return ListView.builder(
                                 itemCount: similar.length,
                                 scrollDirection: Axis.horizontal,
@@ -175,41 +239,32 @@ class _ResultSearchState extends State<ResultSearch> {
                     ],
                   ),
                 ),
-                Expanded(
-                  child: FutureBuilder<List<DriverOrderFind>>(
-                    future: HttpUserOrder().findUserOrder(
-                     widget.from.cityId!,
-                     widget.to.cityId!,
-                     widget.count,
-                     currentUnixDate
-                    ),
-                    builder: (context, snapshot) {
-                      if(snapshot.connectionState==ConnectionState.waiting){
-                        return Center(
-                          child: CircularProgressIndicator(), 
-                        );
-                      }
-                      if(snapshot.hasError){
-                        return Center(
-                          child: Text("Ошибка"),
-                        );
-                      }
-                      List<DriverOrderFind>? driverOrder=  snapshot.data;
-                      
-                      if( driverOrder!.isEmpty){
-                        return Center(
-                          child: Text("список пуст"),
-                        );
-                      }
-                      return ListView.builder(
-                        itemCount: driverOrder.length,
-                        itemBuilder: (context, index) {
-                          return CardsearchOrderSearch(driverOrder: driverOrder[index]);
-                        },
-                        );
-                    },
-                    ),
-                )
+                
+                  Expanded(
+
+                    child: ListView.builder(
+                          itemCount: listOrder.length,
+                          itemBuilder: (context, index) {
+                            if(listOrder[index] is Column){
+                              return listOrder[index];
+                            }
+                            if(listOrder[index] is Padding){
+                              return listOrder[index];
+                            }
+                            if(listOrder[index] is Image){
+                              return listOrder[index];
+                            }
+                            else{
+                               return CardsearchOrderSearch(driverOrder: listOrder[index],seats:widget.count);
+                            }
+                           
+                          },
+                          
+                     
+                  )
+                  )
+                
+                
         ],
       ),
     );

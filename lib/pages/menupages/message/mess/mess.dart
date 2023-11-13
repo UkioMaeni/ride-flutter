@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/http/chats/http_chats.dart';
+import 'package:flutter_application_1/main.dart';
 import 'package:flutter_application_1/pages/menupages/message/message_page.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:intl/intl.dart';
@@ -14,20 +15,15 @@ class Mess extends StatefulWidget{
 }
 
 class _MessState extends State<Mess> {
+
+  
   @override
   Widget build(BuildContext context) {
 
-
+int unread=appSocket.counterMessage[widget.chat.chatId]??0;
   DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(widget.chat.createdAt * 1000);
   String formattedTime = DateFormat('HH:mm').format(dateTime);
-    return InkWell(
-      onTapDown: (details) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => MessagePage(chatId: widget.chat.chatId,userId: widget.chat.clientId),)
-          );
-  },
-      child: SizedBox(
+    return  SizedBox(
         height: 61,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -42,11 +38,11 @@ class _MessState extends State<Mess> {
                   width: 45,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: ColorUtils.stringToColor(widget.chat.clientName),
+                    color: ColorUtils.stringToColor(widget.chat.chatMembers[0].clientName),
                     borderRadius: BorderRadius.circular(45)
                   ),
                   child: Text(
-                    widget.chat.clientName.isNotEmpty?widget.chat.clientName[0]:"A",
+                    widget.chat.chatMembers[0].clientName.isNotEmpty?widget.chat.chatMembers[0].clientName[0]:"!",
                     style: TextStyle(
                       fontSize: 25,
                       
@@ -74,22 +70,51 @@ class _MessState extends State<Mess> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "${widget.chat.clientName}   ${widget.chat.start}->${widget.chat.end}",
+                    "${widget.chat.chatMembers[0].clientName}   ${widget.chat.start} - ${widget.chat.end}",
                     style: TextStyle(
                       fontFamily: "SF",
                       fontWeight: FontWeight.w500,
                       fontSize: 14
                     ),
                     ),
-                  Text(
-                    widget.chat.message,
-                    style: TextStyle(
-                      fontFamily: "SF",
-                      fontWeight: FontWeight.w400,
-                      fontSize: 14,
-                      color: Color.fromRGBO(0,0,0,0.45)
-                    ),
-                    )
+                  Row(
+                    children: [
+                      Text(
+                        widget.chat.message,
+                        style: TextStyle(
+                          fontFamily: "SF",
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                          color: Color.fromRGBO(0,0,0,0.45)
+                        ),
+                        ),
+                        unread>0
+                        ?Container(
+                          margin: EdgeInsets.only(left: 15),
+                        alignment: Alignment.center,
+                        height: 17,
+                        constraints: BoxConstraints(
+                          minWidth: 14
+                        ),
+                        padding: EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          borderRadius: BorderRadius.circular(10)
+                        ),
+                        child: Text(
+                          unread.toString(),
+                          overflow: TextOverflow.clip,
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: "SF",
+                            fontWeight: FontWeight.w600,
+                            fontSize: 10
+                          ),
+                        ),
+                      )
+                        :SizedBox.shrink()
+                    ],
+                  )
                 ],
               ),
             )
@@ -116,7 +141,7 @@ class _MessState extends State<Mess> {
             
           ],
         )
-        ),
+        
     );
   }
 }

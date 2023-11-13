@@ -1,7 +1,6 @@
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:mobx/mobx.dart';
-part 'store.g.dart';
-
+part 'stores.g.dart';
 class StoreController = ControllerBase with _$StoreController;
 
 abstract class ControllerBase with Store{
@@ -17,7 +16,8 @@ abstract class ControllerBase with Store{
   CarData car = CarData(CarModel(-1,""), CarModel(-1,""), "", 0);
   @observable
   DopInfo dopInfo =DopInfo(3,false, false, false, false, "");
-
+  @observable
+  String comment="";
   @action
   void setDate(DateTime date_) {
     date = date_;
@@ -49,7 +49,10 @@ abstract class ControllerBase with Store{
   void setCreatAuto(bool newValue){
     createAuto=newValue;
   }
-
+  @action
+  void setComment(String comment_) {
+    comment = comment_;
+  }
   @action
   void setDefaultValue(){
     date=DateTime.now();
@@ -59,6 +62,7 @@ abstract class ControllerBase with Store{
     car = CarData(CarModel(-1,""), CarModel(-1,""), "", 0);
     dopInfo =DopInfo(3,false, false, false, false, "");
     createAuto=true;
+    comment="";
   }
 
 }

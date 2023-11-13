@@ -165,7 +165,7 @@ class _SearchState extends State<Search> {
                     
                   ),
                   child: Text(
-                    "Поиск",
+                    "Search",
                     style: TextStyle(
                       color: Colors.white,
                       fontFamily: "Inter",

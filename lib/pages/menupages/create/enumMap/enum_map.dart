@@ -3,6 +3,6 @@ enum MyEnum {
   model,
 }
 Map<MyEnum, String> typeWindow = {
-    MyEnum.name: "марку",
-    MyEnum.model: "модель",
+    MyEnum.name: "Car make",
+    MyEnum.model: "Car model",
   };

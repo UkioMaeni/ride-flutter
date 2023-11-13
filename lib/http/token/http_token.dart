@@ -20,7 +20,7 @@ class HttpToken{
         if(statusCode==400){
 
         }
-    // Вызовите `handler.resolve(response)` для продолжения выполнения запроса в случае обработки ошибки, или `handler.next(error)` для передачи ошибки дальше
+  
         handler.next(error);
   },
 ));

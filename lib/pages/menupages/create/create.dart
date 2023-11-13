@@ -6,8 +6,10 @@ import 'package:flutter_application_1/pages/menupages/create/UI/card_coordinates
 import 'package:flutter_application_1/pages/menupages/create/auto/auto.dart';
 import 'package:flutter_application_1/pages/menupages/create/card_order/card_order.dart';
 import 'package:flutter_application_1/pages/menupages/create/create_title.dart';
+import 'package:flutter_application_1/pages/menupages/emptyState/empty_state.dart';
 import 'package:flutter_application_1/pages/menupages/provider/provider.dart';
 import 'package:flutter_application_1/pages/menupages/provider/store.dart';
+import 'package:flutter_application_1/pages/menupages/provider/user_store.dart';
 import 'package:flutter_application_1/pages/menupages/search/UI/calendare/calendare.dart';
 import 'package:flutter_application_1/pages/menupages/search/UI/time_picker/time_picker.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
@@ -85,9 +87,9 @@ void _showDialogPage(BuildContext context){
   Widget build(BuildContext context) {
 
       
-   
+   bool auth = userStore.userInfo.auth;
 
-    return  FutureBuilder<List<DriverOrder>>(
+    return auth?  FutureBuilder<List<DriverOrder>>(
       future: HttpUserOrder().getUserOrders(),
       builder: (context, snapshot){
         if(snapshot.connectionState==ConnectionState.waiting){
@@ -97,10 +99,11 @@ void _showDialogPage(BuildContext context){
         }
         if(snapshot.hasError){
             return Center(
-              child: Text("Ошибка"),
+              child: Text("error"),
             );
         }
-        List<DriverOrder>? driverOrder=  snapshot.data;
+        if(snapshot.hasData){
+          List<DriverOrder>? driverOrder=  snapshot.data;
         print(driverOrder);
           if(driverOrder!.isEmpty){
             return  CreateTitle(side: updateData, back: false,);
@@ -108,12 +111,21 @@ void _showDialogPage(BuildContext context){
           return Column(
             children: [
               Expanded(
-                child: ListView.builder(
-                  itemCount: driverOrder.length,
-                  itemBuilder: (context, index) {
-                    return CardOrder(driverOrder: driverOrder[index],);
+                child: RefreshIndicator(
+                  onRefresh: ()async {
+                    setState(() {
+                      
+                    });
                   },
-                  ),
+                  child: ListView.builder(
+                    itemCount: driverOrder.length,
+                    itemBuilder: (context, index) {
+                      return CardOrder(driverOrder: driverOrder[index],side: (){setState(() {
+                        
+                      });},);
+                    },
+                    ),
+                ),
               ),
                 Padding(
                   padding: const EdgeInsets.only(left: 15,right: 15,bottom: 30),
@@ -150,7 +162,7 @@ void _showDialogPage(BuildContext context){
                       
                     ),
                     child: const Text(
-                      "Создать поездку",
+                      "Create a ride",
                       style: TextStyle(
                         color: Color.fromRGBO(255,255,255,1),
                         fontFamily: "Inter",
@@ -163,7 +175,12 @@ void _showDialogPage(BuildContext context){
                 ),
             ],
           );
+        }
+        return SizedBox.shrink();
+        
       },
-      );
+      )
+      :EmptyStateAllPAge()
+      ;
   }
 }

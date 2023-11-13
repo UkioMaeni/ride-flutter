@@ -198,7 +198,7 @@ final _calendarCarouselNoHeader = CalendarCarousel<Event>(
                       Padding(
                         padding: const EdgeInsets.only(bottom:20),
                         child: Text(
-                          "Выберите дату поездки",
+                          "Select travel date",
                           style: TextStyle(
                             color: brandBlack,
                             fontFamily: "SF",
@@ -216,7 +216,7 @@ final _calendarCarouselNoHeader = CalendarCarousel<Event>(
                                 color: Color.fromRGBO(0, 0, 0, 0.1),
                                 spreadRadius: 0,
                                 blurRadius: 60,
-                                offset: Offset(0, 10), // смещение тени по горизонтали и вертикали
+                                offset: Offset(0, 10), 
                               ),
                             ]
                           ),
@@ -272,71 +272,7 @@ final _calendarCarouselNoHeader = CalendarCarousel<Event>(
                             ],
                           )
                           
-                          // child: CupertinoDatePicker(
-                          //   mode: CupertinoDatePickerMode.date,
-                            
-                          //   initialDateTime: _selectedDate,
-                          //   onDateTimeChanged: (value) {
-                          //     setState(() {
-                          //       _selectedDate=value;
-                          //     });
-                          //   },
-                          // ),
-                        //  child: TableCalendar(
-                            
-                        //    firstDay: DateTime.now(),
-                        //     lastDay: DateTime(2024),
-                            
-                        //     focusedDay: date,
-                        //      headerStyle:  HeaderStyle(
-                        //         formatButtonVisible: false, // Скрыть кнопку выбора формата
-                        //         titleCentered: true, // Выравнивание заголовка по центру
-                        //         titleTextStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        //         titleTextFormatter: (date, locale) => '${DateFormat.MMMM().format(date)} ${date.year}',
-                        //       ),
-                        //      headerVisible: true,
-                        //      calendarStyle:CalendarStyle(
-                        //       selectedDecoration: BoxDecoration(
-                        //         color: Colors.amber,
-                                
-                        //         borderRadius:BorderRadius.circular(10)
-                        //       ),
-                              
-                        //       todayDecoration: BoxDecoration(
-                        //         color: const Color.fromARGB(0, 195, 13, 13),  // Отключите стандартную стилизацию сегодняшнего дня
-                        //       ),
-                        //       todayTextStyle: TextStyle(
-                        //         fontWeight: FontWeight.normal,
-                        //       ),
-                        //      ),
-                        //     onDaySelected:(selectedDay, focusedDay) {
-                        //       // setState(() {
-                        //       //   widget.update(selectedDay);
-                                
-                                
-                        //       // });
-                        //     },
-                        //     calendarBuilders:CalendarBuilders(
-                        //       selectedBuilder: (context, day, focusedDay) {
-                        //         return Container(
-                        //           decoration: BoxDecoration(
-                        //             color: Colors.blue,  // Измените цвет индикатора выбранного дня
-                        //             shape: BoxShape.circle,  // Измените форму индикатора выбранного дня
-                        //           ),
-                        //           child: Center(
-                        //             child: Text(
-                        //               '${date.day}',
-                        //               style: TextStyle(
-                        //                 color: Colors.white,  // Измените цвет текста выбранного дня
-                        //                 fontWeight: FontWeight.bold,
-                        //               ),
-                        //             ),
-                        //           )
-                        //           );
-                        //       },
-                        //     )
-                                             
-                        //                    ),
+                          
                        ),
                   ],
                 ),

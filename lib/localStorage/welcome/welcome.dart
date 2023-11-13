@@ -20,6 +20,6 @@ Future<int> setWelcome() async{
 Future<void> clearSharedPreferences() async {
   SharedPreferences preferences = await SharedPreferences.getInstance();
   await preferences.clear();
-  ///TODO: может начаться показ welcome при анавторайз
+ 
 }
 }

@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_1/helpers/color_constants.dart';
+import 'package:flutter_application_1/http/orders/orders.dart';
+import 'package:flutter_application_1/pages/menupages/emptyState/empty_state.dart';
+import 'package:flutter_application_1/pages/menupages/provider/user_store.dart';
+import 'package:flutter_application_1/pages/menupages/search/UI/search_card/search_card_search.dart';
 import 'package:flutter_svg/svg.dart';
 
 class MyRoads extends StatefulWidget{
@@ -12,6 +16,52 @@ class MyRoads extends StatefulWidget{
 class _MyRoadsState extends State<MyRoads> {
   @override
   Widget build(BuildContext context) {
+    bool auth = userStore.userInfo.auth;
+    return auth?  FutureBuilder<List<DriverOrderFind>>(
+      future: HttpUserOrder().myTrips(),
+      builder: (context, snapshot) {
+        if(snapshot.hasError){
+          return errorState();
+        }
+        if(snapshot.connectionState==ConnectionState.waiting){
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        List<DriverOrderFind> trips=snapshot.data!;
+        print(trips.length);
+        if(trips.length==0){
+          return emptyState();
+        }
+        return RefreshIndicator(
+          
+          onRefresh: ()async {
+            setState(() {
+              
+            });
+          },
+          child: ListView.builder(
+            itemCount: trips.length,
+            itemBuilder: (context, index) {
+              return CardsearchOrderSearch(driverOrder: trips[index],seats: trips[index].clientReservedSeats!,);
+            },
+            ),
+        );
+      },
+    )
+    : EmptyStateAllPAge()
+    ;
+  }
+
+  Widget errorState(){
+    return Center(
+      child: Text(
+        "error"
+      ),
+    );
+  }
+
+  Widget emptyState(){
     return Center(
       child: Center(
         child: Column(
@@ -22,7 +72,7 @@ class _MyRoadsState extends State<MyRoads> {
             Padding(
               padding: const EdgeInsets.only(top:32,bottom: 12),
               child: Text(
-                "Здесь появятся ваши\nзабронированные поездки!",
+                "Your booked ride will appear here!",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: brandBlack,
@@ -33,7 +83,7 @@ class _MyRoadsState extends State<MyRoads> {
                 ),
             ),
               Text(
-              "На этой странице вы найдете список ваших\nбудущих путешесвтий, которые вы\nзабонирутете.",
+              "On this page you will find rides you already booked.",
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: brandBlack,
